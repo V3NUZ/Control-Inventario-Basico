@@ -389,7 +389,7 @@ copies or substantial portions of the Software.
 ### 💬 Obtener Ayuda
 - 📖 **Documentación:** Revisa este README completo
 - 🐛 **Issues:** Abre un issue en GitHub
-- 📧 **Email:** [tu-email@ejemplo.com]
+- 📧 **Email:** [-]
 
 ### 🌐 Comunidad
 - ⭐ **Star** el repositorio si te gusta
