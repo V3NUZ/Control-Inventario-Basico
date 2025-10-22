@@ -6,21 +6,16 @@ class InventoryManager {
     }
 
     init() {
-        try {
-            this.loadFromStorage();
-            this.setupEventListeners();
-            this.updateStats();
-            this.renderProducts();
-            this.updateCategoryFilter();
-            console.log('Aplicación inicializada correctamente');
-        } catch (error) {
-            console.error('Error al inicializar:', error);
-            this.showNotification('Error al cargar la aplicación', 'error');
-        }
+        this.loadFromStorage();
+        this.setupEventListeners();
+        this.updateStats();
+        this.renderProducts();
+        this.updateCategoryFilter();
+        console.log('Inventario cargado -', this.products.length, 'productos');
     }
 
     setupEventListeners() {
-        // Formulario de producto
+        // Formulario
         const form = document.getElementById('productForm');
         if (form) {
             form.addEventListener('submit', (e) => {
@@ -50,7 +45,7 @@ class InventoryManager {
             if (e.key === 'Escape') this.closeModal();
         });
 
-        // File input for import
+        // File input
         const fileInput = document.getElementById('fileInput');
         if (fileInput) {
             fileInput.addEventListener('change', (e) => {
@@ -69,7 +64,7 @@ class InventoryManager {
                 this.saveToStorage();
             }
         } catch (error) {
-            console.error('Error loading from storage:', error);
+            console.error('Error cargando datos:', error);
             this.products = this.getDefaultProducts();
             this.saveToStorage();
         }
@@ -79,7 +74,7 @@ class InventoryManager {
         try {
             localStorage.setItem('inventory_products', JSON.stringify(this.products));
         } catch (error) {
-            console.error('Error saving to storage:', error);
+            console.error('Error guardando datos:', error);
         }
     }
 
@@ -238,7 +233,6 @@ class InventoryManager {
     renderProducts() {
         const container = document.getElementById('productsList');
         const emptyState = document.getElementById('emptyState');
-        const productCount = document.getElementById('productCount');
         
         if (!container) return;
 
@@ -246,73 +240,47 @@ class InventoryManager {
 
         if (filtered.length === 0) {
             container.innerHTML = '';
-            if (emptyState) emptyState.classList.remove('hidden');
-            if (productCount) productCount.textContent = '0 productos';
+            if (emptyState) emptyState.style.display = 'block';
             return;
         }
 
-        if (emptyState) emptyState.classList.add('hidden');
-        if (productCount) productCount.textContent = `${filtered.length} producto${filtered.length !== 1 ? 's' : ''}`;
+        if (emptyState) emptyState.style.display = 'none';
         
         container.innerHTML = filtered.map(product => {
             const stockClass = product.quantity === 0 ? 'stock-zero' : 
                               product.quantity <= 5 ? 'stock-low' : 'stock-good';
             
             const stockBadge = product.quantity === 0 ? 
-                '<span class="alert-badge bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">NECESITAMOS</span>' :
+                '<span class="badge badge-danger">NECESITAMOS</span>' :
                 product.quantity <= 5 ? 
-                '<span class="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold">BAJO</span>' :
-                '<span class="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold">DISPONIBLE</span>';
+                '<span class="badge badge-warning">BAJO</span>' :
+                '<span class="badge badge-success">DISPONIBLE</span>';
 
             return `
-                <div class="product-card ${stockClass} bg-white rounded-lg p-4 md:p-6 shadow-md fade-in">
-                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                                <h3 class="text-lg font-semibold text-gray-800">${this.escapeHtml(product.name)}</h3>
-                                ${stockBadge}
-                            </div>
-                            <div class="flex flex-wrap gap-2 sm:gap-4 text-sm text-gray-600 mb-3">
-                                <span class="flex items-center">
-                                    <i class="fas fa-tag mr-1"></i>${this.escapeHtml(product.category)}
-                                </span>
-                                ${product.price ? `
-                                <span class="flex items-center">
-                                    <i class="fas fa-dollar-sign mr-1"></i>${product.price.toFixed(2)}
-                                </span>` : ''}
-                                ${product.notes ? `
-                                <span class="flex items-center">
-                                    <i class="fas fa-sticky-note mr-1"></i>${this.escapeHtml(product.notes)}
-                                </span>` : ''}
-                            </div>
+                <div class="product-card ${stockClass}">
+                    <div class="product-info">
+                        <div class="product-name">
+                            ${this.escapeHtml(product.name)}
+                            ${stockBadge}
+                        </div>
+                        <div class="product-details">
+                            📁 ${this.escapeHtml(product.category)}
+                            ${product.price ? ` • 💰 $${product.price.toFixed(2)}` : ''}
+                            ${product.notes ? ` • 📝 ${this.escapeHtml(product.notes)}` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="product-actions">
+                        <div class="quantity-controls">
+                            <button class="quantity-btn btn-minus" onclick="inventory.adjustQuantity(${product.id}, -1)" 
+                                    ${product.quantity === 0 ? 'disabled' : ''}>−</button>
+                            <span class="quantity-display">${product.quantity}</span>
+                            <button class="quantity-btn btn-plus" onclick="inventory.adjustQuantity(${product.id}, 1)">+</button>
                         </div>
                         
-                        <div class="flex items-center justify-between lg:justify-end gap-4">
-                            <div class="flex items-center gap-2 bg-gray-100 rounded-lg p-2">
-                                <button onclick="inventory.adjustQuantity(${product.id}, -1)" 
-                                        class="btn-quantity w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-                                        ${product.quantity === 0 ? 'disabled' : ''}>
-                                    <i class="fas fa-minus text-xs"></i>
-                                </button>
-                                <span class="font-bold text-lg min-w-[3rem] text-center">${product.quantity}</span>
-                                <button onclick="inventory.adjustQuantity(${product.id}, 1)" 
-                                        class="btn-quantity w-8 h-8 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center">
-                                    <i class="fas fa-plus text-xs"></i>
-                                </button>
-                            </div>
-                            
-                            <div class="flex gap-2">
-                                <button onclick="inventory.editProduct(${product.id})" 
-                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                        title="Editar">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button onclick="inventory.deleteProduct(${product.id})" 
-                                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                        title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
+                        <div class="action-buttons">
+                            <button class="btn-icon btn-edit" onclick="inventory.editProduct(${product.id})" title="Editar">✏️</button>
+                            <button class="btn-icon btn-delete" onclick="inventory.deleteProduct(${product.id})" title="Eliminar">🗑️</button>
                         </div>
                     </div>
                 </div>
@@ -342,13 +310,14 @@ class InventoryManager {
         const totalStock = this.products.reduce((sum, p) => sum + p.quantity, 0);
         const neededProducts = this.products.filter(p => p.quantity === 0).length;
 
-        const totalProductsEl = document.getElementById('totalProducts');
-        const totalStockEl = document.getElementById('totalStock');
-        const neededProductsEl = document.getElementById('neededProducts');
+        this.updateElement('totalProducts', totalProducts);
+        this.updateElement('totalStock', totalStock);
+        this.updateElement('neededProducts', neededProducts);
+    }
 
-        if (totalProductsEl) totalProductsEl.textContent = totalProducts;
-        if (totalStockEl) totalStockEl.textContent = totalStock;
-        if (neededProductsEl) neededProductsEl.textContent = neededProducts;
+    updateElement(id, value) {
+        const element = document.getElementById(id);
+        if (element) element.textContent = value;
     }
 
     updateCategoryFilter() {
@@ -368,7 +337,7 @@ class InventoryManager {
     openModal() {
         const modal = document.getElementById('productModal');
         if (modal) {
-            modal.classList.remove('hidden');
+            modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
         }
     }
@@ -376,7 +345,7 @@ class InventoryManager {
     closeModal() {
         const modal = document.getElementById('productModal');
         if (modal) {
-            modal.classList.add('hidden');
+            modal.style.display = 'none';
             document.body.style.overflow = 'auto';
             this.resetForm();
         }
@@ -410,7 +379,7 @@ class InventoryManager {
             
             this.showNotification('Datos exportados correctamente', 'success');
         } catch (error) {
-            console.error('Export error:', error);
+            console.error('Error exportando:', error);
             this.showNotification('Error al exportar datos', 'error');
         }
     }
@@ -441,47 +410,25 @@ class InventoryManager {
                     this.showNotification('Formato de archivo inválido', 'error');
                 }
             } catch (error) {
-                console.error('Import error:', error);
+                console.error('Error importando:', error);
                 this.showNotification('Error al leer el archivo', 'error');
             }
         };
         reader.readAsText(file);
         
-        // Reset file input
         event.target.value = '';
     }
 
     showNotification(message, type = 'info') {
         const notification = document.getElementById('notification');
-        const icon = document.getElementById('notificationIcon');
-        const text = document.getElementById('notificationText');
-        const notificationDiv = notification ? notification.querySelector('div') : null;
+        if (!notification) return;
 
-        if (!notification || !icon || !text || !notificationDiv) return;
-
-        const icons = {
-            success: '<i class="fas fa-check-circle text-green-500 text-xl"></i>',
-            error: '<i class="fas fa-exclamation-circle text-red-500 text-xl"></i>',
-            warning: '<i class="fas fa-exclamation-triangle text-yellow-500 text-xl"></i>',
-            info: '<i class="fas fa-info-circle text-blue-500 text-xl"></i>'
-        };
-
-        const colors = {
-            success: 'border-green-500',
-            error: 'border-red-500',
-            warning: 'border-yellow-500',
-            info: 'border-blue-500'
-        };
-
-        icon.innerHTML = icons[type] || icons.info;
-        text.textContent = message;
-        notificationDiv.className = `bg-white rounded-lg shadow-lg p-4 flex items-center space-x-3 min-w-[300px] border-l-4 ${colors[type] || colors.info}`;
-
-        notification.classList.remove('hidden');
-        notification.classList.add('fade-in');
+        notification.textContent = message;
+        notification.className = `notification ${type}`;
+        notification.style.display = 'block';
 
         setTimeout(() => {
-            if (notification) notification.classList.add('hidden');
+            notification.style.display = 'none';
         }, 3000);
     }
 
@@ -492,8 +439,8 @@ class InventoryManager {
     }
 }
 
-// Global functions for HTML onclick handlers
-function openAddModal() {
+// Funciones globales
+function openModal() {
     if (window.inventory) inventory.openModal();
 }
 
@@ -509,8 +456,8 @@ function importData() {
     if (window.inventory) inventory.importData();
 }
 
-// Initialize the app when DOM is loaded
+// Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM cargado, inicializando aplicación...');
+    console.log('Iniciando Inventario Profesional...');
     window.inventory = new InventoryManager();
 });
