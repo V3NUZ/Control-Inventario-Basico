@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario Profesional - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .login-input {
+            transition: all 0.3s ease;
+        }
+        
+        .login-input:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .shake {
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <!-- Logo y Título -->
+        <div class="text-center mb-8 fade-in">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full shadow-lg mb-4">
+                <i class="fas fa-warehouse text-3xl text-purple-600"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">Inventario Profesional</h1>
+            <p class="text-purple-100">Sistema de Gestión de Inventario</p>
+        </div>
+
+        <!-- Formulario de Login -->
+        <div class="glass-effect rounded-2xl shadow-2xl p-8 fade-in">
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-user mr-2"></i>Usuario
+                    </label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        required
+                        class="login-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                        placeholder="Ingrese su usuario"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-lock mr-2"></i>Contraseña
+                    </label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        required
+                        class="login-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                        placeholder="Ingrese su contraseña"
+                    >
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="remember" class="mr-2 rounded text-purple-600">
+                        <span class="text-sm text-gray-600">Recordarme</span>
+                    </label>
+                    <a href="#" class="text-sm text-purple-600 hover:text-purple-800">
+                        ¿Olvidó su contraseña?
+                    </a>
+                </div>
+
+                <button 
+                    type="submit" 
+                    class="login-btn w-full py-3 px-4 text-white font-semibold rounded-lg shadow-lg"
+                >
+                    <i class="fas fa-sign-in-alt mr-2"></i>
+                    Iniciar Sesión
+                </button>
+            </form>
+
+            <!-- Mensaje de Error -->
+            <div id="errorMessage" class="hidden mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <span id="errorText">Usuario o contraseña incorrectos</span>
+            </div>
+
+            <!-- Información de Acceso -->
+            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                <p class="text-sm text-blue-800">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <strong>Acceso de prueba:</strong><br>
+                    Usuario: admin<br>
+                    Contraseña: admin123
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 text-white">
+            <p class="text-sm opacity-75">
+                © 2024 Inventario Profesional - Versión Ultra Ligera
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de Autenticación
+        class AuthSystem {
+            constructor() {
+                this.initializeUsers();
+                this.loadRememberedUser();
+                this.setupEventListeners();
+            }
+
+            initializeUsers() {
+                // Usuarios por defecto (en producción, esto debería estar en el backend)
+                if (!localStorage.getItem('inventario_users')) {
+                    const defaultUsers = [
+                        { 
+                            id: 1, 
+                            username: 'admin', 
+                            password: 'admin123', 
+                            name: 'Administrador',
+                            role: 'admin',
+                            permissions: ['read', 'write', 'delete', 'manage_users']
+                        },
+                        { 
+                            id: 2, 
+                            username: 'empleado1', 
+                            password: 'emp123', 
+                            name: 'Empleado 1',
+                            role: 'employee',
+                            permissions: ['read', 'write']
+                        },
+                        { 
+                            id: 3, 
+                            username: 'empleado2', 
+                            password: 'emp123', 
+                            name: 'Empleado 2',
+                            role: 'employee',
+                            permissions: ['read', 'write']
+                        }
+                    ];
+                    localStorage.setItem('inventario_users', JSON.stringify(defaultUsers));
+                }
+            }
+
+            loadRememberedUser() {
+                const remembered = localStorage.getItem('inventario_remembered_user');
+                if (remembered) {
+                    document.getElementById('username').value = remembered;
+                    document.getElementById('remember').checked = true;
+                }
+            }
+
+            setupEventListeners() {
+                const form = document.getElementById('loginForm');
+                form.addEventListener('submit', (e) => this.handleLogin(e));
+
+                // Ocultar mensaje de error al escribir
+                ['username', 'password'].forEach(id => {
+                    document.getElementById(id).addEventListener('input', () => {
+                        this.hideError();
+                    });
+                });
+            }
+
+            async handleLogin(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+                const remember = document.getElementById('remember').checked;
+
+                // Mostrar loading
+                this.showLoading();
+
+                // Simular delay para mejor UX
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // Validar credenciales
+                const users = JSON.parse(localStorage.getItem('inventario_users') || '[]');
+                const user = users.find(u => u.username === username && u.password === password);
+
+                if (user) {
+                    // Login exitoso
+                    this.handleSuccessfulLogin(user, remember);
+                } else {
+                    // Login fallido
+                    this.handleFailedLogin();
+                }
+            }
+
+            handleSuccessfulLogin(user, remember) {
+                // Guardar sesión
+                const session = {
+                    user: {
+                        id: user.id,
+                        username: user.username,
+                        name: user.name,
+                        role: user.role,
+                        permissions: user.permissions
+                    },
+                    loginTime: new Date().toISOString(),
+                    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 horas
+                };
+                
+                localStorage.setItem('inventario_session', JSON.stringify(session));
+
+                // Guardar usuario recordado
+                if (remember) {
+                    localStorage.setItem('inventario_remembered_user', user.username);
+                } else {
+                    localStorage.removeItem('inventario_remembered_user');
+                }
+
+                // Redirigir al inventario
+                window.location.href = 'index.html';
+            }
+
+            handleFailedLogin() {
+                this.hideLoading();
+                this.showError('Usuario o contraseña incorrectos');
+                
+                // Añadir efecto shake al formulario
+                const form = document.querySelector('.glass-effect');
+                form.classList.add('shake');
+                setTimeout(() => form.classList.remove('shake'), 500);
+            }
+
+            showLoading() {
+                const button = document.querySelector('.login-btn');
+                const originalContent = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Verificando...';
+                button.disabled = true;
+                
+                setTimeout(() => {
+                    button.innerHTML = originalContent;
+                    button.disabled = false;
+                }, 2000);
+            }
+
+            hideLoading() {
+                const button = document.querySelector('.login-btn');
+                button.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i>Iniciar Sesión';
+                button.disabled = false;
+            }
+
+            showError(message) {
+                const errorDiv = document.getElementById('errorMessage');
+                const errorText = document.getElementById('errorText');
+                errorText.textContent = message;
+                errorDiv.classList.remove('hidden');
+            }
+
+            hideError() {
+                document.getElementById('errorMessage').classList.add('hidden');
+            }
+        }
+
+        // Verificar si ya hay una sesión activa
+        function checkExistingSession() {
+            const session = localStorage.getItem('inventario_session');
+            if (session) {
+                const sessionData = JSON.parse(session);
+                const expiresAt = new Date(sessionData.expiresAt);
+                
+                if (expiresAt > new Date()) {
+                    // Sesión válida, redirigir
+                    window.location.href = 'index.html';
+                    return;
+                } else {
+                    // Sesión expirada, limpiar
+                    localStorage.removeItem('inventario_session');
+                }
+            }
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            checkExistingSession();
+            new AuthSystem();
+        });
+
+        // Prevenir acceso directo si no hay sesión
+        if (window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('admin.html')) {
+            checkExistingSession();
+        }
+
+        // Verificar actividad del usuario y cerrar sesión por inactividad
+        function setupInactivityTimer() {
+            let inactivityTimeout;
+            const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 minutos
+
+            function resetTimer() {
+                clearTimeout(inactivityTimeout);
+                inactivityTimeout = setTimeout(() => {
+                    if (confirm('Tu sesión ha expirado por inactividad. Por favor, inicia sesión nuevamente.')) {
+                        localStorage.removeItem('inventario_session');
+                        window.location.href = 'login.html';
+                    }
+                }, INACTIVITY_LIMIT);
+            }
+
+            // Eventos de actividad del usuario
+            ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'].forEach(event => {
+                document.addEventListener(event, resetTimer, true);
+            });
+
+            resetTimer(); // Iniciar el timer
+        }
+    </script>
+</body>
+</html>

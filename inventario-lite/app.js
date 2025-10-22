@@ -237,6 +237,8 @@ class InventoryManager {
         if (!container) return;
 
         const filtered = this.getFilteredProducts();
+        const session = JSON.parse(localStorage.getItem('inventario_session') || '{}');
+        const permissions = session.user?.permissions || [];
 
         if (filtered.length === 0) {
             container.innerHTML = '';
@@ -256,6 +258,18 @@ class InventoryManager {
                 '<span class="badge badge-warning">BAJO</span>' :
                 '<span class="badge badge-success">DISPONIBLE</span>';
 
+            // Determinar qué botones mostrar según permisos
+            const canEdit = permissions.includes('write');
+            const canDelete = permissions.includes('delete');
+            
+            const actionButtons = [];
+            if (canEdit) {
+                actionButtons.push(`<button class="btn-icon btn-edit" onclick="inventory.editProduct(${product.id})" title="Editar">✏️</button>`);
+            }
+            if (canDelete) {
+                actionButtons.push(`<button class="btn-icon btn-delete" onclick="inventory.deleteProduct(${product.id})" title="Eliminar">🗑️</button>`);
+            }
+
             return `
                 <div class="product-card ${stockClass}">
                     <div class="product-info">
@@ -271,17 +285,24 @@ class InventoryManager {
                     </div>
                     
                     <div class="product-actions">
+                        ${canEdit ? `
                         <div class="quantity-controls">
                             <button class="quantity-btn btn-minus" onclick="inventory.adjustQuantity(${product.id}, -1)" 
                                     ${product.quantity === 0 ? 'disabled' : ''}>−</button>
                             <span class="quantity-display">${product.quantity}</span>
                             <button class="quantity-btn btn-plus" onclick="inventory.adjustQuantity(${product.id}, 1)">+</button>
                         </div>
-                        
-                        <div class="action-buttons">
-                            <button class="btn-icon btn-edit" onclick="inventory.editProduct(${product.id})" title="Editar">✏️</button>
-                            <button class="btn-icon btn-delete" onclick="inventory.deleteProduct(${product.id})" title="Eliminar">🗑️</button>
+                        ` : `
+                        <div class="quantity-display" style="padding: 5px 10px; background: #f5f5f5; border-radius: 8px; font-weight: 600;">
+                            ${product.quantity} unidades
                         </div>
+                        `}
+                        
+                        ${actionButtons.length > 0 ? `
+                        <div class="action-buttons">
+                            ${actionButtons.join('')}
+                        </div>
+                        ` : ''}
                     </div>
                 </div>
             `;
