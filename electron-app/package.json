@@ -1,0 +1,10 @@
+{
+  "name": "sistema-inventario",
+  "version": "1.0.0",
+  "description": "Sistema de Inventario - Aplicación de escritorio para gestión de productos",
+  "main": "electron.js",
+  "dependencies": {
+    "express": "^5.1.0",
+    "@prisma/client": "^6.11.1"
+  }
+}

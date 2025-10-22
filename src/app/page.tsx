@@ -33,63 +33,96 @@ export default function InventoryApp() {
   })
   const [stockAdjustment, setStockAdjustment] = useState(0)
 
-  // Cargar productos desde la API
+  // Cargar productos desde localStorage o API
   useEffect(() => {
-    fetchProducts()
+    loadProducts()
   }, [])
 
-  const fetchProducts = async () => {
+  const loadProducts = async () => {
     try {
+      // Intentar cargar desde API primero
       const response = await fetch('/api/products')
       if (response.ok) {
         const data = await response.json()
         setProducts(data)
+      } else {
+        // Fallback a localStorage
+        const stored = localStorage.getItem('inventory-products')
+        if (stored) {
+          setProducts(JSON.parse(stored))
+        } else {
+          // Datos de ejemplo iniciales
+          const mockProducts: Product[] = [
+            {
+              id: '1',
+              name: 'Laptop Dell XPS 15',
+              description: 'Laptop de alto rendimiento con pantalla 4K',
+              stock: 5,
+              price: 1299.99,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            },
+            {
+              id: '2',
+              name: 'Mouse Logitech MX Master 3',
+              description: 'Mouse ergonómico inalámbrico',
+              stock: 12,
+              price: 99.99,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            },
+            {
+              id: '3',
+              name: 'Teclado mecánico RGB',
+              description: 'Teclado gaming con retroiluminación RGB',
+              stock: 8,
+              price: 149.99,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            }
+          ]
+          setProducts(mockProducts)
+          localStorage.setItem('inventory-products', JSON.stringify(mockProducts))
+        }
       }
     } catch (error) {
-      console.error('Error fetching products:', error)
-      // Cargar datos de ejemplo si falla la API
-      const mockProducts: Product[] = [
-        {
-          id: '1',
-          name: 'Laptop Dell XPS 15',
-          description: 'Laptop de alto rendimiento con pantalla 4K',
-          stock: 5,
-          price: 1299.99,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: '2',
-          name: 'Mouse Logitech MX Master 3',
-          description: 'Mouse ergonómico inalámbrico',
-          stock: 12,
-          price: 99.99,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: '3',
-          name: 'Teclado mecánico RGB',
-          description: 'Teclado gaming con retroiluminación RGB',
-          stock: 8,
-          price: 149.99,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
-      ]
-      setProducts(mockProducts)
+      console.error('Error loading products:', error)
+      // Fallback a localStorage
+      const stored = localStorage.getItem('inventory-products')
+      if (stored) {
+        setProducts(JSON.parse(stored))
+      }
     } finally {
       setLoading(false)
     }
   }
 
+  const saveToLocalStorage = (products: Product[]) => {
+    localStorage.setItem('inventory-products', JSON.stringify(products))
+  }
+
   const handleCreateProduct = async () => {
     if (!formData.name.trim()) {
-      toast.error('El nombre del producto es requerido')
+      toast({
+        title: "Error",
+        description: "El nombre del producto es requerido",
+        variant: "destructive"
+      })
       return
     }
 
+    const newProduct: Product = {
+      id: Date.now().toString(),
+      name: formData.name,
+      description: formData.description,
+      stock: formData.stock,
+      price: formData.price,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+
     try {
+      // Intentar guardar en API
       const response = await fetch('/api/products', {
         method: 'POST',
         headers: {
@@ -99,22 +132,45 @@ export default function InventoryApp() {
       })
 
       if (response.ok) {
-        const newProduct = await response.json()
-        setProducts([...products, newProduct])
-        setFormData({ name: '', description: '', stock: 0, price: 0 })
-        setIsCreateDialogOpen(false)
-        toast.success('Producto creado exitosamente')
+        const createdProduct = await response.json()
+        setProducts([...products, createdProduct])
       } else {
-        toast.error('Error al crear el producto')
+        // Fallback a localStorage
+        const updatedProducts = [...products, newProduct]
+        setProducts(updatedProducts)
+        saveToLocalStorage(updatedProducts)
       }
     } catch (error) {
-      console.error('Error creating product:', error)
-      toast.error('Error al crear el producto')
+      // Fallback a localStorage
+      const updatedProducts = [...products, newProduct]
+      setProducts(updatedProducts)
+      saveToLocalStorage(updatedProducts)
     }
+
+    setFormData({ name: '', description: '', stock: 0, price: 0 })
+    setIsCreateDialogOpen(false)
+    toast({
+      title: "Éxito",
+      description: "Producto creado exitosamente"
+    })
   }
 
   const handleUpdateStock = async (productId: string, adjustment: number) => {
+    const product = products.find(p => p.id === productId)
+    if (!product) return
+
+    const newStock = product.stock + adjustment
+    if (newStock < 0) {
+      toast({
+        title: "Error",
+        description: "No se puede tener stock negativo",
+        variant: "destructive"
+      })
+      return
+    }
+
     try {
+      // Intentar actualizar en API
       const response = await fetch(`/api/products/${productId}/stock`, {
         method: 'PUT',
         headers: {
@@ -125,36 +181,60 @@ export default function InventoryApp() {
 
       if (response.ok) {
         const updatedProduct = await response.json()
-        setProducts(products.map(product => 
-          product.id === productId ? updatedProduct : product
-        ))
-        toast.success('Stock actualizado')
+        setProducts(products.map(p => p.id === productId ? updatedProduct : p))
       } else {
-        const error = await response.json()
-        toast.error(error.error || 'Error al actualizar stock')
+        // Fallback a localStorage
+        const updatedProducts = products.map(p => 
+          p.id === productId 
+            ? { ...p, stock: newStock, updatedAt: new Date().toISOString() }
+            : p
+        )
+        setProducts(updatedProducts)
+        saveToLocalStorage(updatedProducts)
       }
     } catch (error) {
-      console.error('Error updating stock:', error)
-      toast.error('Error al actualizar stock')
+      // Fallback a localStorage
+      const updatedProducts = products.map(p => 
+        p.id === productId 
+          ? { ...p, stock: newStock, updatedAt: new Date().toISOString() }
+          : p
+      )
+      setProducts(updatedProducts)
+      saveToLocalStorage(updatedProducts)
     }
+
+    toast({
+      title: "Éxito",
+      description: "Stock actualizado"
+    })
   }
 
   const handleDeleteProduct = async (productId: string) => {
     try {
+      // Intentar eliminar en API
       const response = await fetch(`/api/products/${productId}`, {
         method: 'DELETE',
       })
 
       if (response.ok) {
-        setProducts(products.filter(product => product.id !== productId))
-        toast.success('Producto eliminado')
+        setProducts(products.filter(p => p.id !== productId))
       } else {
-        toast.error('Error al eliminar producto')
+        // Fallback a localStorage
+        const updatedProducts = products.filter(p => p.id !== productId)
+        setProducts(updatedProducts)
+        saveToLocalStorage(updatedProducts)
       }
     } catch (error) {
-      console.error('Error deleting product:', error)
-      toast.error('Error al eliminar producto')
+      // Fallback a localStorage
+      const updatedProducts = products.filter(p => p.id !== productId)
+      setProducts(updatedProducts)
+      saveToLocalStorage(updatedProducts)
     }
+
+    toast({
+      title: "Éxito",
+      description: "Producto eliminado"
+    })
   }
 
   const openEditDialog = (product: Product) => {

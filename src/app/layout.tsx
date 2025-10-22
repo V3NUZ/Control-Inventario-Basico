@@ -20,6 +20,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Inventory App" }],
   icons: {
     icon: "/inventory-logo.png",
+    apple: "/inventory-logo.png"
   },
   openGraph: {
     title: "Sistema de Inventario",
