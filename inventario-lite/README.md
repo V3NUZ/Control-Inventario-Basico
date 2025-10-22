@@ -1,10 +1,10 @@
 # 📦 Inventario Profesional - Versión Ultra Ligera
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/Version-2.0-blue.svg)](https://github.com/tu-usuario/inventario-profesional)
-[![Size](https://img.shields.io/badge/Size-85KB-green.svg)](https://github.com/tu-usuario/inventario-profesional)
+[![Version](https://img.shields.io/badge/Version-2.0-blue.svg)](https://github.com/V3NUZ/Control-Inventario-Basico)
+[![Size](https://img.shields.io/badge/Size-94KB-green.svg)](https://github.com/V3NUZ/Control-Inventario-Basico)
 
-Un sistema de gestión de inventario **ultra ligero y seguro** con control de acceso por usuarios, diseñado para pymes y emprendedores que necesitan una solución eficiente sin complicaciones.
+Un sistema de gestión de inventario **ultra ligero y seguro** con control de acceso por usuarios, diseñado por **V3NUZ** para pymes y emprendedores que necesitan una solución eficiente sin complicaciones.
 
 ## ✨ Características Principales
 
@@ -90,13 +90,13 @@ Un sistema de gestión de inventario **ultra ligero y seguro** con control de ac
 ### Opción 1: Uso Local Inmediato
 ```bash
 # 1. Descarga los archivos
-git clone https://github.com/tu-usuario/inventario-profesional.git
-cd inventario-profesional
+git clone https://github.com/V3NUZ/Control-Inventario-Basico.git
+cd Control-Inventario-Basico
 
 # 2. Abre el sistema de login
-open login.html  # Mac
-start login.html # Windows
-xdg-open login.html # Linux
+open inventario-lite/login.html  # Mac
+start inventario-lite/login.html # Windows
+xdg-open inventario-lite/login.html # Linux
 
 # 3. ¡Listo para usar! 🎉
 ```
@@ -251,8 +251,8 @@ inventario-lite/ (85KB total)
 ### 🌐 GitHub + Vercel (Recomendado)
 ```bash
 # 1. Crear repositorio en GitHub
-git clone https://github.com/tu-usuario/inventario-profesional.git
-cd inventario-profesional
+git clone https://github.com/V3NUZ/Control-Inventario-Basico.git
+cd Control-Inventario-Basico
 
 # 2. Subir archivos
 git add .
@@ -337,7 +337,7 @@ CMD ["nginx", "-g", "daemon off;"]
 ## 🤝 Contribución
 
 ### 📋 Cómo Contribuir
-1. **Fork** el repositorio
+1. **Fork** el repositorio de V3NUZ
 2. **Crea** una rama feature (`git checkout - feature/amazing-feature`)
 3. **Commit** tus cambios (`git commit -m 'Add amazing feature'`)
 4. **Push** a la rama (`git push origin feature/amazing-feature`)
@@ -355,7 +355,7 @@ Este proyecto está licenciado bajo la **MIT License** - ver el archivo [LICENSE
 ```
 MIT License
 
-Copyright (c) 2024 Claude AI Assistant
+Copyright (c) 2024 V3NUZ
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -370,16 +370,17 @@ copies or substantial portions of the Software.
 
 ## 👥 Créditos
 
-### 🤖 Desarrollador Principal
-- **Claude AI Assistant** - Desarrollo completo del sistema
-- **Arquitectura** y diseño del software
+### 🎯 Desarrollador Principal
+- **V3NUZ** - Diseño y desarrollo completo del sistema
+- **Arquitectura** y lógica del software
 - **Implementación** de todas las funcionalidades
+- **GitHub:** [@V3NUZ](https://github.com/V3NUZ)
 
-### 🙏 Agradecimientos
-- **Tailwind CSS** - Framework de estilos
-- **Font Awesome** - Biblioteca de iconos
-- **Vercel** - Plataforma de deployment
-- **GitHub** - Control de versiones
+### 🤖 Asistencia de Desarrollo
+- **Claude AI Assistant** - Soporte técnico y desarrollo
+- **Optimización** de código y rendimiento
+- **Documentación** y buenas prácticas
+- **Asistencia** en implementación de características
 
 ---
 
@@ -399,4 +400,4 @@ copies or substantial portions of the Software.
 
 **🚀 Inventario Profesional - La solución perfecta para gestionar tu inventario de forma simple, segura y eficiente.**
 
-*Hecho con ❤️ por Claude AI Assistant*
+*Desarrollado con ❤️ por V3NUZ con asistencia de Claude AI Assistant*

@@ -15,7 +15,8 @@
  * - Control de permisos integrado
  * - Validación de datos robusta
  * 
- * @author Claude AI Assistant
+ * @author V3NUZ (Desarrollador Principal)
+ * @assistant Claude AI Assistant (Asistencia de Desarrollo)
  * @version 2.0 con Sistema de Login
  * @license MIT
  */
