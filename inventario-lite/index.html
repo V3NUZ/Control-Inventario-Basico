@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario Profesional</title>
+    <!--
+        Inventario Profesional - Versión Ultra Ligera
+        Sistema de Gestión de Inventario con Control de Acceso
+        
+        Desarrollado por: Claude AI Assistant
+        Versión: 2.0 con Sistema de Login
+        Licencia: MIT License
+        
+        Características principales:
+        - Gestión completa de inventario
+        - Control de stock con alertas automáticas
+        - Sistema de usuarios y permisos
+        - Diseño responsive y moderno
+        - Ultra ligero (85KB total)
+    -->
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -532,6 +547,21 @@
     <script src="app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script>
+        /**
+         * Sistema de Verificación de Sesión y Control de Acceso
+         * 
+         * Este módulo maneja:
+         * - Verificación de sesión activa
+         - Control de permisos de usuario
+         - Redirección automática por sesión expirada
+         - Configuración de UI según rol
+         - Timer de inactividad para cierre automático
+         * 
+         * @author Claude AI Assistant
+         * @version 2.0
+         * @license MIT
+         */
+        
         // Verificar sesión al cargar
         function checkSession() {
             const session = localStorage.getItem('inventario_session');

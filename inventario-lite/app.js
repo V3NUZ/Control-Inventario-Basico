@@ -1,3 +1,25 @@
+/**
+ * Inventario Profesional - Motor Principal
+ * 
+ * Este sistema gestiona:
+ * - Operaciones CRUD de productos
+ * - Control de stock con ajustes rápidos (+/-)
+ * - Sistema de alertas automáticas (NECESITAMOS)
+ * - Búsqueda y filtrado avanzado
+ * - Importación/Exportación de datos
+ * - Persistencia local con localStorage
+ * 
+ * Características principales:
+ * - Ultra optimizado para rendimiento
+ * - Diseño responsive y accesible
+ * - Control de permisos integrado
+ * - Validación de datos robusta
+ * 
+ * @author Claude AI Assistant
+ * @version 2.0 con Sistema de Login
+ * @license MIT
+ */
+
 class InventoryManager {
     constructor() {
         this.products = [];

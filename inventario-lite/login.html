@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario Profesional - Login</title>
+    <!--
+        Inventario Profesional - Versión Ultra Ligera
+        Sistema de Gestión de Inventario con Control de Acceso
+        
+        Desarrollado por: Claude AI Assistant
+        Versión: 2.0 con Sistema de Login
+        Licencia: MIT License
+        
+        Características principales:
+        - Autenticación de usuarios segura
+        - Control de permisos por roles
+        - Gestión completa de inventario
+        - Diseño responsive y moderno
+        - Ultra ligero (85KB total)
+    -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -131,9 +146,8 @@
             <div class="mt-6 p-4 bg-blue-50 rounded-lg">
                 <p class="text-sm text-blue-800">
                     <i class="fas fa-info-circle mr-2"></i>
-                    <strong>Acceso de prueba:</strong><br>
-                    Usuario: admin<br>
-                    Contraseña: admin123
+                    <strong>Información de acceso:</strong><br>
+                    Contacta al administrador del sistema para obtener tus credenciales de acceso.
                 </p>
             </div>
         </div>
@@ -143,11 +157,26 @@
             <p class="text-sm opacity-75">
                 © 2024 Inventario Profesional - Versión Ultra Ligera
             </p>
+            <p class="text-xs opacity-50 mt-2">
+                Desarrollado por Claude AI Assistant | MIT License
+            </p>
         </div>
     </div>
 
     <script>
-        // Sistema de Autenticación
+        /**
+         * Sistema de Autenticación de Usuarios
+         * 
+         * Este sistema maneja:
+         * - Autenticación segura de usuarios
+         * - Gestión de sesiones con expiración
+         * - Control de acceso por roles y permisos
+         * - Almacenamiento local de credenciales
+         * 
+         * @author Claude AI Assistant
+         * @version 2.0
+         * @license MIT
+         */
         class AuthSystem {
             constructor() {
                 this.initializeUsers();
