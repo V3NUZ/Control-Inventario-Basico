@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventario MultiTienda</title>
+    <title>Sistema de Inventario</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
         * {
             font-family: 'Inter', sans-serif;
         }
@@ -27,42 +25,17 @@
         .store-card {
             transition: all 0.3s ease;
             cursor: pointer;
+            border: 2px solid transparent;
         }
         
         .store-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
         
         .store-card.selected {
-            border: 3px solid #7c3aed;
+            border-color: #7c3aed;
             background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-        }
-        
-        .product-row {
-            transition: all 0.2s ease;
-        }
-        
-        .product-row:hover {
-            background: #f9fafb;
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .float-animation {
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
         }
         
         .modal {
@@ -87,78 +60,73 @@
             overflow-y: auto;
         }
         
-        .stock-btn {
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .btn {
             transition: all 0.2s ease;
         }
         
-        .stock-btn:hover {
-            transform: scale(1.1);
+        .btn:hover {
+            transform: translateY(-1px);
         }
         
-        .stock-btn:active {
-            transform: scale(0.95);
+        .btn:active {
+            transform: translateY(0);
         }
-        
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
-        }
-        
-        .status-online { background: #10b981; }
-        .status-offline { background: #f59e0b; }
-        .status-error { background: #ef4444; }
     </style>
 </head>
 <body class="gradient-bg">
-    <div class="container mx-auto p-4">
-        <!-- Header -->
-        <header class="glass-effect rounded-2xl shadow-xl p-6 mb-6 fade-in">
-            <div class="flex justify-between items-center flex-wrap gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center float-animation">
-                        <i class="fas fa-store text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-800">Inventario MultiTienda</h1>
-                        <p class="text-gray-600">Gestión profesional de inventario</p>
-                    </div>
+    <!-- Header Principal -->
+    <header class="glass-effect rounded-2xl shadow-xl p-6 mb-6 fade-in">
+        <div class="flex justify-between items-center flex-wrap gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-store text-white text-xl"></i>
                 </div>
-                <div class="flex items-center gap-3">
-                    <!-- Indicador de sincronización -->
-                    <div id="syncStatus" class="hidden items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg">
-                        <div id="syncIcon" class="w-4 h-4"></div>
-                        <span id="syncText" class="text-sm text-gray-600"></span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="status-indicator" id="connectionStatus"></span>
-                        <span class="text-sm text-gray-600" id="connectionText">Conectado</span>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-sm font-medium text-gray-800" id="currentUserDisplay">Usuario</div>
-                        <div class="text-xs text-gray-600" id="userRoleDisplay">Rol</div>
-                    </div>
-                    <button onclick="inventoryManager.logout()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Sistema de Inventario</h1>
+                    <p class="text-gray-600">Gestión MultiTienda</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <div class="text-sm font-medium text-gray-800" id="currentUser">Cargando...</div>
+                    <div class="text-xs text-gray-600" id="userRole">Cargando...</div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="showStoreSelection()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 btn">
+                        <i class="fas fa-arrow-left mr-2"></i>Tiendas
+                    </button>
+                    <button onclick="logout()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 btn">
                         <i class="fas fa-sign-out-alt mr-2"></i>Salir
                     </button>
                 </div>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <!-- Selector de Tiendas -->
-        <div class="glass-effect rounded-2xl shadow-xl p-6 mb-6 fade-in">
-            <div class="flex justify-between items-center mb-4">
+    <!-- Contenedor Principal -->
+    <div class="container mx-auto p-4">
+        <!-- Selección de Tiendas -->
+        <div id="storeSelectionView" class="glass-effect rounded-2xl shadow-xl p-6 fade-in">
+            <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-bold text-gray-800">
                     <i class="fas fa-store mr-2 text-purple-600"></i>Seleccionar Tienda
                 </h2>
-                <button onclick="inventoryManager.refreshStores()" class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">
+                <button onclick="refreshStores()" class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 btn text-sm">
                     <i class="fas fa-sync-alt mr-1"></i>Actualizar
                 </button>
             </div>
             
-            <div id="storesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div id="storesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <!-- Las tiendas se cargarán aquí -->
             </div>
             
@@ -169,57 +137,59 @@
             </div>
         </div>
 
-        <!-- Panel de Inventario -->
-        <div id="inventoryPanel" class="hidden">
-            <!-- Estadísticas -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="glass-effect rounded-xl p-6 text-center fade-in">
-                    <div class="text-3xl font-bold text-purple-600" id="totalProducts">0</div>
-                    <div class="text-gray-600">Total Productos</div>
-                </div>
-                <div class="glass-effect rounded-xl p-6 text-center fade-in">
-                    <div class="text-3xl font-bold text-blue-600" id="totalUnits">0</div>
-                    <div class="text-gray-600">Total Unidades</div>
-                </div>
-                <div class="glass-effect rounded-xl p-6 text-center fade-in">
-                    <div class="text-3xl font-bold text-orange-600" id="lowStock">0</div>
-                    <div class="text-gray-600">Stock Bajo</div>
-                </div>
-                <div class="glass-effect rounded-xl p-6 text-center fade-in">
-                    <div class="text-3xl font-bold text-green-600" id="totalValue">$0</div>
-                    <div class="text-gray-600">Valor Total</div>
+        <!-- Vista de Inventario -->
+        <div id="inventoryView" class="hidden">
+            <!-- Info de Tienda Seleccionada -->
+            <div class="glass-effect rounded-2xl shadow-xl p-6 mb-6 fade-in">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">
+                            <i class="fas fa-store mr-2 text-purple-600"></i>
+                            <span id="selectedStoreName">Tienda</span>
+                        </h2>
+                        <p class="text-gray-600" id="selectedStoreAddress">Dirección</p>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                            <div class="text-2xl font-bold text-purple-600" id="storeProducts">0</div>
+                            <div class="text-sm text-gray-600">Productos</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-blue-600" id="storeUnits">0</div>
+                            <div class="text-sm text-gray-600">Unidades</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-orange-600" id="storeLowStock">0</div>
+                            <div class="text-sm text-gray-600">Stock Bajo</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Controles del Inventario -->
+            <!-- Controles -->
             <div class="glass-effect rounded-2xl shadow-xl p-6 mb-6 fade-in">
                 <div class="flex flex-wrap gap-4 justify-between items-center">
                     <div class="flex flex-wrap gap-3">
-                        <button onclick="inventoryManager.openProductModal()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                        <button onclick="openProductModal()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 btn">
                             <i class="fas fa-plus mr-2"></i>Nuevo Producto
                         </button>
-                        <button onclick="inventoryManager.importProducts()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                            <i class="fas fa-file-import mr-2"></i>Importar
-                        </button>
-                        <button onclick="inventoryManager.exportProducts()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-                            <i class="fas fa-file-export mr-2"></i>Exportar
+                        <button onclick="exportData()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 btn">
+                            <i class="fas fa-download mr-2"></i>Exportar
                         </button>
                     </div>
                     <div class="flex items-center gap-3">
                         <input type="text" 
                                id="searchInput" 
-                               placeholder="Buscar productos..." 
-                               class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                        <select id="categoryFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                            <option value="">Todas las categorías</option>
-                        </select>
+                               placeholder="Buscar..." 
+                               onkeyup="filterProducts()"
+                               class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
                     </div>
                 </div>
             </div>
 
             <!-- Tabla de Productos -->
             <div class="glass-effect rounded-2xl shadow-xl p-6 fade-in">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Productos en Inventario</h2>
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Inventario de Productos</h3>
                 
                 <div class="overflow-x-auto">
                     <table class="w-full">
@@ -229,9 +199,6 @@
                                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Producto</th>
                                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Categoría</th>
                                 <th class="text-center py-3 px-4 font-semibold text-gray-700">Stock</th>
-                                <th class="text-right py-3 px-4 font-semibold text-gray-700">Precio</th>
-                                <th class="text-right py-3 px-4 font-semibold text-gray-700">Valor Total</th>
-                                <th class="text-center py-3 px-4 font-semibold text-gray-700">Estado</th>
                                 <th class="text-center py-3 px-4 font-semibold text-gray-700">Acciones</th>
                             </tr>
                         </thead>
@@ -254,31 +221,31 @@
     <div id="productModal" class="modal">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800" id="productModalTitle">Nuevo Producto</h2>
-                <button onclick="inventoryManager.closeProductModal()" class="text-gray-500 hover:text-gray-700">
+                <h2 class="text-2xl font-bold text-gray-800" id="modalTitle">Nuevo Producto</h2>
+                <button onclick="closeProductModal()" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
             
-            <form id="productForm" class="space-y-4">
+            <form id="productForm" onsubmit="saveProduct(event)" class="space-y-4">
                 <input type="hidden" id="productId">
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Código *</label>
-                        <input type="text" id="productCode" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <input type="text" id="productCode" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Producto *</label>
-                        <input type="text" id="productName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nombre *</label>
+                        <input type="text" id="productName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
                     </div>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
-                        <select id="productCategory" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <select id="productCategory" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
                             <option value="">Seleccionar categoría</option>
                             <option value="Alimentos">Alimentos</option>
                             <option value="Accesorios">Accesorios</option>
@@ -291,32 +258,15 @@
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Stock Inicial *</label>
-                        <input type="number" id="productStock" required min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <input type="number" id="productStock" required min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
                     </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Precio Unitario *</label>
-                        <input type="number" id="productPrice" required min="0" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Stock Mínimo</label>
-                        <input type="number" id="productMinStock" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    </div>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
-                    <textarea id="productDescription" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"></textarea>
                 </div>
                 
                 <div class="flex gap-3 pt-4">
-                    <button type="submit" class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
-                        <i class="fas fa-save mr-2"></i>Guardar Producto
+                    <button type="submit" class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 btn">
+                        <i class="fas fa-save mr-2"></i>Guardar
                     </button>
-                    <button type="button" onclick="inventoryManager.closeProductModal()" class="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
+                    <button type="button" onclick="closeProductModal()" class="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 btn">
                         Cancelar
                     </button>
                 </div>
@@ -325,967 +275,422 @@
     </div>
 
     <!-- Notificación -->
-    <div id="notification" class="fixed top-4 right-4 bg-white px-6 py-4 rounded-lg shadow-lg border-l-4 border-green-500 hidden z-50">
-        <div class="flex items-center">
-            <i id="notificationIcon" class="fas fa-check-circle text-green-500 mr-3"></i>
-            <span id="notificationText"></span>
+    <div id="notification" class="fixed top-4 right-4 z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg p-4 flex items-center gap-3 min-w-[300px]">
+            <div id="notificationIcon"></div>
+            <div>
+                <div id="notificationTitle" class="font-semibold text-gray-800"></div>
+                <div id="notificationMessage" class="text-sm text-gray-600"></div>
+            </div>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="firebase-config-demo.js"></script>
-    
     <script>
-        /**
-         * Sistema de Inventario MultiTienda Funcional
-         * 
-         * Características:
-         * - Botones + y - para ajustar stock
-         * - Inventarios separados por tienda
-         * - Asignación de empleados a tiendas
-         * - Gestión completa de usuarios
-         * - Sincronización en tiempo real
-         */
+        // Estado Global
+        let currentUser = null;
+        let selectedStore = null;
+        let stores = [];
+        let products = [];
 
-        class InventoryManager {
-            constructor() {
-                this.currentUser = null;
-                this.stores = [];
-                this.userStores = [];
-                this.selectedStore = null;
-                this.products = [];
-                this.firebaseReady = false;
-                this.editingProduct = null;
-                this.init();
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadUserData();
+            loadStores();
+        });
+
+        // Autenticación
+        function checkAuth() {
+            const user = localStorage.getItem('currentUser');
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
             }
+            currentUser = JSON.parse(user);
+        }
 
-            async init() {
-                await this.checkAuth();
-                await this.loadUserData();
-                this.setupFirebaseWaiter();
-                this.setupEventListeners();
-                this.renderStores();
-                this.updateConnectionStatus();
+        function loadUserData() {
+            if (currentUser) {
+                document.getElementById('currentUser').textContent = currentUser.username;
+                document.getElementById('userRole').textContent = currentUser.role === 'admin' ? 'Administrador' : 'Empleado';
             }
+        }
 
-            // Verificar autenticación
-            async checkAuth() {
-                const currentUserData = localStorage.getItem('currentUser');
-                if (!currentUserData) {
-                    window.location.href = 'login.html';
-                    return;
-                }
-
-                try {
-                    this.currentUser = JSON.parse(currentUserData);
-                    this.updateUserDisplay();
-                } catch (error) {
-                    localStorage.removeItem('currentUser');
-                    window.location.href = 'login.html';
-                }
-            }
-
-            // Actualizar display del usuario
-            updateUserDisplay() {
-                document.getElementById('currentUserDisplay').textContent = this.currentUser.name;
-                document.getElementById('userRoleDisplay').textContent = 
-                    this.currentUser.role === 'admin' ? 'Administrador' : 'Empleado';
-            }
-
-            // Cargar datos del usuario
-            async loadUserData() {
-                await this.loadStores();
-                await this.loadAssignments();
-                this.filterUserStores();
-            }
-
-            // Cargar tiendas
-            async loadStores() {
-                try {
-                    // Primero intentar cargar desde localStorage
-                    const localStores = localStorage.getItem('inventario_stores');
-                    if (localStores) {
-                        this.stores = JSON.parse(localStores);
-                    }
-                    
-                    // Si no hay tiendas, crear las por defecto
-                    if (this.stores.length === 0) {
-                        this.stores = [
-                            {
-                                id: 'store_1',
-                                name: 'La Estancia',
-                                address: 'Avenia Caracas 70A - 89',
-                                sector: 'Tienda sector Caracas',
-                                phone: '',
-                                products: 0,
-                                units: 0,
-                                needs: 0
-                            },
-                            {
-                                id: 'store_2',
-                                name: 'Animal World',
-                                address: 'Calle 58 #127-88',
-                                sector: 'Tienda del sector norte',
-                                phone: '',
-                                products: 0,
-                                units: 0,
-                                needs: 0
-                            }
-                        ];
-                        await this.saveStores();
-                    }
-                    
-                    // Si Firebase está disponible, sincronizar
-                    if (window.firebaseReady && window.database) {
-                        this.firebaseReady = true;
-                        const snapshot = await window.database.ref('stores').once('value');
-                        const data = snapshot.val();
-                        if (data && data.data) {
-                            this.stores = data.data;
-                            localStorage.setItem('inventario_stores', JSON.stringify(this.stores));
-                        }
-                    }
-                    
-                } catch (error) {
-                    console.error('Error cargando tiendas:', error);
-                    // Cargar tiendas por defecto si hay error
-                    if (this.stores.length === 0) {
-                        this.stores = [
-                            {
-                                id: 'store_1',
-                                name: 'La Estancia',
-                                address: 'Avenia Caracas 70A - 89',
-                                sector: 'Tienda sector Caracas',
-                                phone: '',
-                                products: 0,
-                                units: 0,
-                                needs: 0
-                            },
-                            {
-                                id: 'store_2',
-                                name: 'Animal World',
-                                address: 'Calle 58 #127-88',
-                                sector: 'Tienda del sector norte',
-                                phone: '',
-                                products: 0,
-                                units: 0,
-                                needs: 0
-                            }
-                        ];
-                    }
-                }
-            }
-
-            // Cargar asignaciones
-            async loadAssignments() {
-                try {
-                    let assignments = {};
-                    
-                    // Cargar desde localStorage
-                    const localAssignments = localStorage.getItem('inventario_assignments');
-                    if (localAssignments) {
-                        assignments = JSON.parse(localAssignments);
-                    }
-                    
-                    // Si Firebase está disponible, sincronizar
-                    if (this.firebaseReady && window.database) {
-                        const snapshot = await window.database.ref('assignments').once('value');
-                        const data = snapshot.val();
-                        if (data && data.data) {
-                            assignments = data.data;
-                            localStorage.setItem('inventario_assignments', JSON.stringify(assignments));
-                        }
-                    }
-                    
-                    this.assignments = assignments || {};
-                    
-                } catch (error) {
-                    console.error('Error cargando asignaciones:', error);
-                    this.assignments = {};
-                }
-            }
-
-            // Filtrar tiendas del usuario
-            filterUserStores() {
-                if (this.currentUser.role === 'admin') {
-                    // Los administradores ven todas las tiendas
-                    this.userStores = this.stores;
-                } else {
-                    // Los empleados solo ven sus tiendas asignadas
-                    const assignedStoreIds = this.assignments[this.currentUser.id] || [];
-                    this.userStores = this.stores.filter(store => 
-                        assignedStoreIds.includes(store.id)
-                    );
-                }
-            }
-
-            // Configurar espera de Firebase
-            setupFirebaseWaiter() {
-                if (window.firebaseReady) {
-                    this.onFirebaseReady();
-                } else {
-                    const checkFirebase = setInterval(() => {
-                        if (window.firebaseReady !== undefined) {
-                            clearInterval(checkFirebase);
-                            this.onFirebaseReady();
-                        }
-                    }, 100);
-                    
-                    setTimeout(() => {
-                        clearInterval(checkFirebase);
-                        if (!window.firebaseReady) {
-                            this.updateSyncStatus('offline', 'Modo offline');
-                        }
-                    }, 5000);
-                }
-            }
-
-            // Firebase listo
-            onFirebaseReady() {
-                if (!window.firebaseReady || !window.database) {
-                    this.updateSyncStatus('offline', 'Modo offline');
-                    return;
-                }
-
-                this.firebaseReady = true;
-                this.updateSyncStatus('cloud', 'Sincronizado con Firebase');
-                this.setupRealtimeListeners();
-            }
-
-            // Configurar listeners en tiempo real
-            setupRealtimeListeners() {
-                if (!this.firebaseReady || !window.database) return;
-                
-                // Listener para tiendas
-                window.database.ref('stores').on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data && data.data) {
-                        this.stores = data.data;
-                        localStorage.setItem('inventario_stores', JSON.stringify(this.stores));
-                        this.filterUserStores();
-                        this.renderStores();
-                    }
-                });
-                
-                // Listener para productos de la tienda seleccionada
-                if (this.selectedStore) {
-                    window.database.ref(`products_${this.selectedStore.id}`).on('value', (snapshot) => {
-                        const data = snapshot.val();
-                        if (data && data.data) {
-                            this.products = data.data;
-                            localStorage.setItem(`products_${this.selectedStore.id}`, JSON.stringify(this.products));
-                            this.renderProducts();
-                            this.updateStats();
-                        }
-                    });
-                }
-            }
-
-            // Configurar event listeners
-            setupEventListeners() {
-                // Formulario de producto
-                document.getElementById('productForm').addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.saveProduct();
-                });
-
-                // Búsqueda
-                document.getElementById('searchInput').addEventListener('input', (e) => {
-                    this.filterProducts();
-                });
-
-                // Filtro de categoría
-                document.getElementById('categoryFilter').addEventListener('change', (e) => {
-                    this.filterProducts();
-                });
-
-                // Cerrar modales
-                window.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('modal')) {
-                        e.target.style.display = 'none';
-                    }
-                });
-            }
-
-            // Renderizar tiendas
-            renderStores() {
-                const container = document.getElementById('storesContainer');
-                const noStoresMessage = document.getElementById('noStoresMessage');
-                
-                if (this.userStores.length === 0) {
-                    container.innerHTML = '';
-                    noStoresMessage.classList.remove('hidden');
-                    return;
-                }
-                
-                noStoresMessage.classList.add('hidden');
-                container.innerHTML = this.userStores.map(store => `
-                    <div class="store-card bg-white rounded-xl p-6 shadow-lg ${this.selectedStore?.id === store.id ? 'selected' : ''}" 
-                         onclick="inventoryManager.selectStore('${store.id}')">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 class="text-lg font-bold text-gray-800">${store.name}</h3>
-                                <p class="text-sm text-gray-600">${store.address}</p>
-                                ${store.sector ? `<p class="text-xs text-gray-500">${store.sector}</p>` : ''}
-                            </div>
-                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                                <i class="fas fa-store text-purple-600"></i>
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-3 gap-2 mb-4">
-                            <div class="text-center">
-                                <div class="text-lg font-bold text-purple-600">${store.products || 0}</div>
-                                <div class="text-xs text-gray-600">Productos</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-lg font-bold text-blue-600">${store.units || 0}</div>
-                                <div class="text-xs text-gray-600">Unidades</div>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-lg font-bold text-orange-600">${store.needs || 0}</div>
-                                <div class="text-xs text-gray-600">Necesitan</div>
-                            </div>
-                        </div>
-                        
-                        <button class="w-full py-2 px-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
-                            <i class="fas fa-box mr-2"></i>Gestionar Inventario
-                        </button>
-                    </div>
-                `).join('');
-            }
-
-            // Seleccionar tienda
-            async selectStore(storeId) {
-                const store = this.stores.find(s => s.id === storeId);
-                if (!store) return;
-                
-                this.selectedStore = store;
-                this.renderStores();
-                
-                // Mostrar panel de inventario
-                document.getElementById('inventoryPanel').classList.remove('hidden');
-                
-                // Cargar productos de la tienda
-                await this.loadProducts();
-                
-                // Hacer scroll al panel de inventario
-                document.getElementById('inventoryPanel').scrollIntoView({ behavior: 'smooth' });
-            }
-
-            // Cargar productos
-            async loadProducts() {
-                if (!this.selectedStore) return;
-                
-                try {
-                    // Primero intentar cargar desde localStorage
-                    const localProducts = localStorage.getItem(`products_${this.selectedStore.id}`);
-                    if (localProducts) {
-                        this.products = JSON.parse(localProducts);
-                    }
-                    
-                    // Si no hay productos, inicializar array vacío
-                    if (!this.products) {
-                        this.products = [];
-                    }
-                    
-                    // Si Firebase está disponible, sincronizar
-                    if (this.firebaseReady && window.database) {
-                        const snapshot = await window.database.ref(`products_${this.selectedStore.id}`).once('value');
-                        const data = snapshot.val();
-                        if (data && data.data) {
-                            this.products = data.data;
-                            localStorage.setItem(`products_${this.selectedStore.id}`, JSON.stringify(this.products));
-                        }
-                    }
-                    
-                    this.renderProducts();
-                    this.updateStats();
-                    this.updateCategoryFilter();
-                    
-                } catch (error) {
-                    console.error('Error cargando productos:', error);
-                    this.products = [];
-                    this.renderProducts();
-                }
-            }
-
-            // Renderizar productos
-            renderProducts() {
-                const tbody = document.getElementById('productsTableBody');
-                const noProductsMessage = document.getElementById('noProductsMessage');
-                
-                if (this.products.length === 0) {
-                    tbody.innerHTML = '';
-                    noProductsMessage.classList.remove('hidden');
-                    return;
-                }
-                
-                noProductsMessage.classList.add('hidden');
-                tbody.innerHTML = this.products.map(product => {
-                    const totalValue = product.stock * product.price;
-                    const stockStatus = this.getStockStatus(product.stock, product.minStock || 10);
-                    
-                    return `
-                        <tr class="product-row border-b border-gray-100">
-                            <td class="py-3 px-4">
-                                <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded">${product.code}</span>
-                            </td>
-                            <td class="py-3 px-4">
-                                <div>
-                                    <div class="font-medium text-gray-800">${product.name}</div>
-                                    ${product.description ? `<div class="text-xs text-gray-500">${product.description}</div>` : ''}
-                                </div>
-                            </td>
-                            <td class="py-3 px-4">
-                                <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">${product.category || 'Sin categoría'}</span>
-                            </td>
-                            <td class="py-3 px-4 text-center">
-                                <div class="flex items-center justify-center gap-2">
-                                    <button onclick="inventoryManager.adjustStock('${product.id}', -1)" 
-                                            class="stock-btn w-8 h-8 bg-red-500 text-white rounded-lg hover:bg-red-600 transition flex items-center justify-center"
-                                            title="Reducir stock">
-                                        <i class="fas fa-minus text-xs"></i>
-                                    </button>
-                                    <span class="font-semibold ${stockStatus.color} min-w-[3rem] text-center">${product.stock}</span>
-                                    <button onclick="inventoryManager.adjustStock('${product.id}', 1)" 
-                                            class="stock-btn w-8 h-8 bg-green-500 text-white rounded-lg hover:bg-green-600 transition flex items-center justify-center"
-                                            title="Aumentar stock">
-                                        <i class="fas fa-plus text-xs"></i>
-                                    </button>
-                                </div>
-                            </td>
-                            <td class="py-3 px-4 text-right">
-                                $${product.price.toFixed(2)}
-                            </td>
-                            <td class="py-3 px-4 text-right font-semibold">
-                                $${totalValue.toFixed(2)}
-                            </td>
-                            <td class="py-3 px-4 text-center">
-                                <span class="px-2 py-1 ${stockStatus.bgClass} ${stockStatus.textClass} rounded-full text-xs">
-                                    ${stockStatus.text}
-                                </span>
-                            </td>
-                            <td class="py-3 px-4 text-center">
-                                <div class="flex justify-center gap-2">
-                                    <button onclick="inventoryManager.editProduct('${product.id}')" 
-                                            class="p-1 text-blue-600 hover:bg-blue-50 rounded" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button onclick="inventoryManager.deleteProduct('${product.id}')" 
-                                            class="p-1 text-red-600 hover:bg-red-50 rounded" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-            }
-
-            // Ajustar stock con botones + y -
-            async adjustStock(productId, change) {
-                const product = this.products.find(p => p.id === productId);
-                if (!product) return;
-                
-                const newStock = Math.max(0, product.stock + change);
-                
-                if (newStock !== product.stock) {
-                    product.stock = newStock;
-                    product.updatedAt = new Date().toISOString();
-                    
-                    await this.saveProducts();
-                    this.renderProducts();
-                    this.updateStats();
-                    
-                    const action = change > 0 ? 'aumentado' : 'reducido';
-                    this.showNotification(`Stock ${action}: ${product.name} (${change > 0 ? '+' : ''}${change})`);
-                }
-            }
-
-            // Obtener estado del stock
-            getStockStatus(stock, minStock) {
-                if (stock === 0) {
-                    return {
-                        text: 'Agotado',
-                        color: 'text-red-600',
-                        bgClass: 'bg-red-100',
-                        textClass: 'text-red-700'
-                    };
-                } else if (stock <= minStock) {
-                    return {
-                        text: 'Stock Bajo',
-                        color: 'text-orange-600',
-                        bgClass: 'bg-orange-100',
-                        textClass: 'text-orange-700'
-                    };
-                } else {
-                    return {
-                        text: 'Disponible',
-                        color: 'text-green-600',
-                        bgClass: 'bg-green-100',
-                        textClass: 'text-green-700'
-                    };
-                }
-            }
-
-            // Actualizar estadísticas
-            updateStats() {
-                const totalProducts = this.products.length;
-                const totalUnits = this.products.reduce((sum, p) => sum + p.stock, 0);
-                const lowStock = this.products.filter(p => p.stock <= (p.minStock || 10)).length;
-                const totalValue = this.products.reduce((sum, p) => sum + (p.stock * p.price), 0);
-                
-                document.getElementById('totalProducts').textContent = totalProducts;
-                document.getElementById('totalUnits').textContent = totalUnits;
-                document.getElementById('lowStock').textContent = lowStock;
-                document.getElementById('totalValue').textContent = `$${totalValue.toFixed(2)}`;
-                
-                // Actualizar estadísticas de la tienda
-                if (this.selectedStore) {
-                    const storeIndex = this.stores.findIndex(s => s.id === this.selectedStore.id);
-                    if (storeIndex !== -1) {
-                        this.stores[storeIndex].products = totalProducts;
-                        this.stores[storeIndex].units = totalUnits;
-                        this.stores[storeIndex].needs = lowStock;
-                        this.saveStores();
-                    }
-                }
-            }
-
-            // Actualizar filtro de categorías
-            updateCategoryFilter() {
-                const categories = [...new Set(this.products.map(p => p.category).filter(Boolean))];
-                const select = document.getElementById('categoryFilter');
-                
-                select.innerHTML = '<option value="">Todas las categorías</option>' +
-                    categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-            }
-
-            // Filtrar productos
-            filterProducts() {
-                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-                const categoryFilter = document.getElementById('categoryFilter').value;
-                
-                let filtered = this.products;
-                
-                if (searchTerm) {
-                    filtered = filtered.filter(p => 
-                        p.name.toLowerCase().includes(searchTerm) ||
-                        p.code.toLowerCase().includes(searchTerm) ||
-                        (p.description && p.description.toLowerCase().includes(searchTerm))
-                    );
-                }
-                
-                if (categoryFilter) {
-                    filtered = filtered.filter(p => p.category === categoryFilter);
-                }
-                
-                // Renderizar productos filtrados
-                this.renderFilteredProducts(filtered);
-            }
-
-            // Renderizar productos filtrados
-            renderFilteredProducts(filtered) {
-                const tbody = document.getElementById('productsTableBody');
-                const noProductsMessage = document.getElementById('noProductsMessage');
-                
-                if (filtered.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-gray-500">No se encontraron productos</td></tr>';
-                    return;
-                }
-                
-                tbody.innerHTML = filtered.map(product => {
-                    const totalValue = product.stock * product.price;
-                    const stockStatus = this.getStockStatus(product.stock, product.minStock || 10);
-                    
-                    return `
-                        <tr class="product-row border-b border-gray-100">
-                            <td class="py-3 px-4">
-                                <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded">${product.code}</span>
-                            </td>
-                            <td class="py-3 px-4">
-                                <div>
-                                    <div class="font-medium text-gray-800">${product.name}</div>
-                                    ${product.description ? `<div class="text-xs text-gray-500">${product.description}</div>` : ''}
-                                </div>
-                            </td>
-                            <td class="py-3 px-4">
-                                <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">${product.category || 'Sin categoría'}</span>
-                            </td>
-                            <td class="py-3 px-4 text-center">
-                                <div class="flex items-center justify-center gap-2">
-                                    <button onclick="inventoryManager.adjustStock('${product.id}', -1)" 
-                                            class="stock-btn w-8 h-8 bg-red-500 text-white rounded-lg hover:bg-red-600 transition flex items-center justify-center"
-                                            title="Reducir stock">
-                                        <i class="fas fa-minus text-xs"></i>
-                                    </button>
-                                    <span class="font-semibold ${stockStatus.color} min-w-[3rem] text-center">${product.stock}</span>
-                                    <button onclick="inventoryManager.adjustStock('${product.id}', 1)" 
-                                            class="stock-btn w-8 h-8 bg-green-500 text-white rounded-lg hover:bg-green-600 transition flex items-center justify-center"
-                                            title="Aumentar stock">
-                                        <i class="fas fa-plus text-xs"></i>
-                                    </button>
-                                </div>
-                            </td>
-                            <td class="py-3 px-4 text-right">
-                                $${product.price.toFixed(2)}
-                            </td>
-                            <td class="py-3 px-4 text-right font-semibold">
-                                $${totalValue.toFixed(2)}
-                            </td>
-                            <td class="py-3 px-4 text-center">
-                                <span class="px-2 py-1 ${stockStatus.bgClass} ${stockStatus.textClass} rounded-full text-xs">
-                                    ${stockStatus.text}
-                                </span>
-                            </td>
-                            <td class="py-3 px-4 text-center">
-                                <div class="flex justify-center gap-2">
-                                    <button onclick="inventoryManager.editProduct('${product.id}')" 
-                                            class="p-1 text-blue-600 hover:bg-blue-50 rounded" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button onclick="inventoryManager.deleteProduct('${product.id}')" 
-                                            class="p-1 text-red-600 hover:bg-red-50 rounded" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-            }
-
-            // Abrir modal de producto
-            openProductModal() {
-                if (!this.selectedStore) {
-                    this.showNotification('Por favor selecciona una tienda primero', 'error');
-                    return;
-                }
-                
-                document.getElementById('productModal').style.display = 'block';
-                document.getElementById('productModalTitle').textContent = 'Nuevo Producto';
-                document.getElementById('productForm').reset();
-                document.getElementById('productId').value = '';
-                this.editingProduct = null;
-            }
-
-            // Cerrar modal de producto
-            closeProductModal() {
-                document.getElementById('productModal').style.display = 'none';
-                this.editingProduct = null;
-            }
-
-            // Editar producto
-            editProduct(productId) {
-                const product = this.products.find(p => p.id === productId);
-                if (!product) return;
-                
-                this.editingProduct = product;
-                document.getElementById('productModalTitle').textContent = 'Editar Producto';
-                document.getElementById('productId').value = product.id;
-                document.getElementById('productCode').value = product.code;
-                document.getElementById('productName').value = product.name;
-                document.getElementById('productCategory').value = product.category || '';
-                document.getElementById('productStock').value = product.stock;
-                document.getElementById('productPrice').value = product.price;
-                document.getElementById('productMinStock').value = product.minStock || '';
-                document.getElementById('productDescription').value = product.description || '';
-                
-                document.getElementById('productModal').style.display = 'block';
-            }
-
-            // Guardar producto
-            async saveProduct() {
-                if (!this.selectedStore) {
-                    this.showNotification('Por favor selecciona una tienda primero', 'error');
-                    return;
-                }
-                
-                const productId = document.getElementById('productId').value;
-                const productData = {
-                    code: document.getElementById('productCode').value,
-                    name: document.getElementById('productName').value,
-                    category: document.getElementById('productCategory').value,
-                    stock: parseInt(document.getElementById('productStock').value),
-                    price: parseFloat(document.getElementById('productPrice').value),
-                    minStock: parseInt(document.getElementById('productMinStock').value) || 10,
-                    description: document.getElementById('productDescription').value,
-                    updatedAt: new Date().toISOString()
-                };
-                
-                if (productId) {
-                    // Editar producto existente
-                    const index = this.products.findIndex(p => p.id === productId);
-                    if (index !== -1) {
-                        this.products[index] = { ...this.products[index], ...productData };
-                    }
-                } else {
-                    // Crear nuevo producto
-                    const newProduct = {
-                        id: 'product_' + Date.now(),
-                        ...productData,
-                        createdAt: new Date().toISOString()
-                    };
-                    this.products.push(newProduct);
-                }
-                
-                await this.saveProducts();
-                this.closeProductModal();
-                this.renderProducts();
-                this.updateStats();
-                this.updateCategoryFilter();
-                this.showNotification('Producto guardado correctamente');
-            }
-
-            // Eliminar producto
-            async deleteProduct(productId) {
-                if (!confirm('¿Estás seguro de eliminar este producto?')) return;
-                
-                this.products = this.products.filter(p => p.id !== productId);
-                await this.saveProducts();
-                this.renderProducts();
-                this.updateStats();
-                this.updateCategoryFilter();
-                this.showNotification('Producto eliminado correctamente');
-            }
-
-            // Guardar productos
-            async saveProducts() {
-                if (!this.selectedStore) return;
-                
-                try {
-                    localStorage.setItem(`products_${this.selectedStore.id}`, JSON.stringify(this.products));
-                    
-                    if (this.firebaseReady && window.database) {
-                        await window.database.ref(`products_${this.selectedStore.id}`).set({
-                            data: this.products,
-                            lastUpdated: new Date().toISOString()
-                        });
-                    }
-                } catch (error) {
-                    console.error('Error guardando productos:', error);
-                }
-            }
-
-            // Guardar tiendas
-            async saveStores() {
-                try {
-                    localStorage.setItem('inventario_stores', JSON.stringify(this.stores));
-                    
-                    if (this.firebaseReady && window.database) {
-                        await window.database.ref('stores').set({
-                            data: this.stores,
-                            lastUpdated: new Date().toISOString()
-                        });
-                    }
-                } catch (error) {
-                    console.error('Error guardando tiendas:', error);
-                }
-            }
-
-            // Importar productos
-            importProducts() {
-                if (!this.selectedStore) {
-                    this.showNotification('Por favor selecciona una tienda primero', 'error');
-                    return;
-                }
-                
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = '.csv,.json';
-                
-                input.onchange = async (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-                    
-                    try {
-                        const text = await file.text();
-                        let importedProducts = [];
-                        
-                        if (file.name.endsWith('.json')) {
-                            const data = JSON.parse(text);
-                            importedProducts = Array.isArray(data) ? data : data.products || [];
-                        } else if (file.name.endsWith('.csv')) {
-                            importedProducts = this.parseCSV(text);
-                        }
-                        
-                        // Validar y agregar productos
-                        let added = 0;
-                        importedProducts.forEach(product => {
-                            if (product.code && product.name) {
-                                const newProduct = {
-                                    id: 'product_' + Date.now() + '_' + Math.random(),
-                                    code: product.code,
-                                    name: product.name,
-                                    category: product.category || 'Importado',
-                                    stock: parseInt(product.stock) || 0,
-                                    price: parseFloat(product.price) || 0,
-                                    minStock: parseInt(product.minStock) || 10,
-                                    description: product.description || '',
-                                    createdAt: new Date().toISOString(),
-                                    updatedAt: new Date().toISOString()
-                                };
-                                this.products.push(newProduct);
-                                added++;
-                            }
-                        });
-                        
-                        await this.saveProducts();
-                        this.renderProducts();
-                        this.updateStats();
-                        this.updateCategoryFilter();
-                        this.showNotification(`${added} productos importados correctamente`);
-                        
-                    } catch (error) {
-                        console.error('Error importando productos:', error);
-                        this.showNotification('Error importando productos: ' + error.message, 'error');
-                    }
-                };
-                
-                input.click();
-            }
-
-            // Exportar productos
-            exportProducts() {
-                if (!this.selectedStore || this.products.length === 0) {
-                    this.showNotification('No hay productos para exportar', 'error');
-                    return;
-                }
-                
-                const exportData = {
-                    store: this.selectedStore.name,
-                    timestamp: new Date().toISOString(),
-                    products: this.products
-                };
-                
-                const dataStr = JSON.stringify(exportData, null, 2);
-                const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                const url = URL.createObjectURL(dataBlob);
-                
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `productos_${this.selectedStore.name}_${new Date().toISOString().split('T')[0]}.json`;
-                link.click();
-                
-                URL.revokeObjectURL(url);
-                this.showNotification('Productos exportados correctamente');
-            }
-
-            // Parsear CSV
-            parseCSV(text) {
-                const lines = text.split('\n').filter(line => line.trim());
-                if (lines.length < 2) return [];
-                
-                const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-                const products = [];
-                
-                for (let i = 1; i < lines.length; i++) {
-                    const values = lines[i].split(',').map(v => v.trim());
-                    const product = {};
-                    
-                    headers.forEach((header, index) => {
-                        product[header] = values[index] || '';
-                    });
-                    
-                    products.push(product);
-                }
-                
-                return products;
-            }
-
-            // Refrescar tiendas
-            async refreshStores() {
-                await this.loadStores();
-                await this.loadAssignments();
-                this.filterUserStores();
-                this.renderStores();
-                this.showNotification('Tiendas actualizadas');
-            }
-
-            // Actualizar estado de conexión
-            updateConnectionStatus() {
-                const statusIndicator = document.getElementById('connectionStatus');
-                const statusText = document.getElementById('connectionText');
-                
-                if (this.firebaseReady) {
-                    statusIndicator.className = 'status-indicator status-online';
-                    statusText.textContent = 'Conectado';
-                } else {
-                    statusIndicator.className = 'status-indicator status-offline';
-                    statusText.textContent = 'Modo Offline';
-                }
-            }
-
-            // Actualizar estado de sincronización
-            updateSyncStatus(status, message) {
-                const syncStatus = document.getElementById('syncStatus');
-                const syncIcon = document.getElementById('syncIcon');
-                const syncText = document.getElementById('syncText');
-
-                if (!syncStatus || !syncIcon || !syncText) return;
-
-                syncStatus.classList.remove('hidden');
-                syncStatus.classList.add('flex');
-
-                switch (status) {
-                    case 'cloud':
-                        syncIcon.innerHTML = '<i class="fas fa-cloud text-green-500"></i>';
-                        syncText.textContent = message;
-                        syncStatus.className = 'flex items-center gap-2 px-3 py-2 bg-green-100 rounded-lg';
-                        break;
-                    case 'syncing':
-                        syncIcon.innerHTML = '<i class="fas fa-spinner fa-spin text-blue-500"></i>';
-                        syncText.textContent = message;
-                        syncStatus.className = 'flex items-center gap-2 px-3 py-2 bg-blue-100 rounded-lg';
-                        break;
-                    case 'offline':
-                        syncIcon.innerHTML = '<i class="fas fa-wifi-slash text-orange-500"></i>';
-                        syncText.textContent = message;
-                        syncStatus.className = 'flex items-center gap-2 px-3 py-2 bg-orange-100 rounded-lg';
-                        break;
-                    case 'error':
-                        syncIcon.innerHTML = '<i class="fas fa-exclamation-triangle text-red-500"></i>';
-                        syncText.textContent = message;
-                        syncStatus.className = 'flex items-center gap-2 px-3 py-2 bg-red-100 rounded-lg';
-                        break;
-                }
-            }
-
-            // Mostrar notificación
-            showNotification(message, type = 'success') {
-                const notification = document.getElementById('notification');
-                const notificationIcon = document.getElementById('notificationIcon');
-                const notificationText = document.getElementById('notificationText');
-                
-                notificationText.textContent = message;
-                
-                notification.className = 'fixed top-4 right-4 bg-white px-6 py-4 rounded-lg shadow-lg border-l-4 z-50';
-                
-                if (type === 'error') {
-                    notification.classList.add('border-red-500');
-                    notificationIcon.className = 'fas fa-exclamation-circle text-red-500 mr-3';
-                } else {
-                    notification.classList.add('border-green-500');
-                    notificationIcon.className = 'fas fa-check-circle text-green-500 mr-3';
-                }
-                
-                notification.classList.remove('hidden');
-                
-                setTimeout(() => {
-                    notification.classList.add('hidden');
-                }, 3000);
-            }
-
-            // Logout
-            logout() {
+        function logout() {
+            if (confirm('¿Estás seguro de que deseas salir?')) {
                 localStorage.removeItem('currentUser');
                 window.location.href = 'login.html';
             }
         }
 
-        // Inicializar el sistema
-        const inventoryManager = new InventoryManager();
+        // Gestión de Tiendas
+        function loadStores() {
+            // Cargar tiendas base
+            stores = [
+                {
+                    id: 'la_estancia',
+                    name: 'La Estancia',
+                    address: 'Avenia Caracas 70A - 89',
+                    sector: 'Caracas'
+                },
+                {
+                    id: 'animal_world',
+                    name: 'Animal World',
+                    address: 'Calle 58 #127-88',
+                    sector: 'Norte'
+                }
+            ];
+
+            // Filtrar tiendas según el rol del usuario
+            if (currentUser.role !== 'admin') {
+                const userStores = JSON.parse(localStorage.getItem('userStores_' + currentUser.username) || '[]');
+                stores = stores.filter(store => userStores.includes(store.id));
+            }
+
+            renderStores();
+        }
+
+        function renderStores() {
+            const storesList = document.getElementById('storesList');
+            const noStoresMessage = document.getElementById('noStoresMessage');
+
+            if (stores.length === 0) {
+                storesList.innerHTML = '';
+                noStoresMessage.classList.remove('hidden');
+                return;
+            }
+
+            noStoresMessage.classList.add('hidden');
+            storesList.innerHTML = stores.map(store => {
+                const storeProducts = getStoreProducts(store.id);
+                const totalUnits = storeProducts.reduce((sum, p) => sum + parseInt(p.stock || 0), 0);
+                const lowStock = storeProducts.filter(p => parseInt(p.stock || 0) < 5).length;
+
+                return `
+                    <div class="store-card bg-white rounded-xl p-6 shadow-lg ${selectedStore?.id === store.id ? 'selected' : ''}" 
+                         onclick="selectStore('${store.id}')">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-store text-purple-600 text-xl"></i>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm text-gray-500">${store.sector}</div>
+                            </div>
+                        </div>
+                        
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">${store.name}</h3>
+                        <p class="text-sm text-gray-600 mb-4">${store.address}</p>
+                        
+                        <div class="grid grid-cols-3 gap-2 text-center mb-4">
+                            <div>
+                                <div class="text-lg font-bold text-purple-600">${storeProducts.length}</div>
+                                <div class="text-xs text-gray-500">Productos</div>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-blue-600">${totalUnits}</div>
+                                <div class="text-xs text-gray-500">Unidades</div>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-orange-600">${lowStock}</div>
+                                <div class="text-xs text-gray-500">Stock Bajo</div>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 btn">
+                            <i class="fas fa-box mr-2"></i>Gestionar Inventario
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function refreshStores() {
+            showNotification('info', 'Actualizando', 'Recargando lista de tiendas...');
+            loadStores();
+        }
+
+        function selectStore(storeId) {
+            selectedStore = stores.find(s => s.id === storeId);
+            if (!selectedStore) return;
+
+            showInventoryView();
+            loadProducts();
+        }
+
+        function showStoreSelection() {
+            document.getElementById('storeSelectionView').classList.remove('hidden');
+            document.getElementById('inventoryView').classList.add('hidden');
+            selectedStore = null;
+            renderStores();
+        }
+
+        function showInventoryView() {
+            document.getElementById('storeSelectionView').classList.add('hidden');
+            document.getElementById('inventoryView').classList.remove('hidden');
+            
+            document.getElementById('selectedStoreName').textContent = selectedStore.name;
+            document.getElementById('selectedStoreAddress').textContent = selectedStore.address;
+        }
+
+        // Gestión de Productos
+        function getStoreProducts(storeId) {
+            const storeProducts = JSON.parse(localStorage.getItem('products_' + storeId) || '[]');
+            return storeProducts;
+        }
+
+        function loadProducts() {
+            if (!selectedStore) return;
+            
+            products = getStoreProducts(selectedStore.id);
+            renderProducts();
+            updateStoreStats();
+        }
+
+        function renderProducts() {
+            const tbody = document.getElementById('productsTableBody');
+            const noProductsMessage = document.getElementById('noProductsMessage');
+
+            if (products.length === 0) {
+                tbody.innerHTML = '';
+                noProductsMessage.classList.remove('hidden');
+                return;
+            }
+
+            noProductsMessage.classList.add('hidden');
+            tbody.innerHTML = products.map(product => {
+                const stockClass = parseInt(product.stock || 0) < 5 ? 'text-red-600' : 'text-green-600';
+                const stockIcon = parseInt(product.stock || 0) < 5 ? 'fa-exclamation-triangle' : 'fa-check-circle';
+
+                return `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4">
+                            <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded">${product.code}</span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="font-medium text-gray-800">${product.name}</div>
+                            ${product.description ? `<div class="text-sm text-gray-500">${product.description}</div>` : ''}
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                                ${product.category || 'Sin categoría'}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <button onclick="adjustStock('${product.code}', -1)" class="w-6 h-6 bg-red-500 text-white rounded hover:bg-red-600 btn">
+                                    <i class="fas fa-minus text-xs"></i>
+                                </button>
+                                <span class="${stockClass} font-bold">
+                                    <i class="fas ${stockIcon} mr-1"></i>${product.stock}
+                                </span>
+                                <button onclick="adjustStock('${product.code}', 1)" class="w-6 h-6 bg-green-500 text-white rounded hover:bg-green-600 btn">
+                                    <i class="fas fa-plus text-xs"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <div class="flex justify-center gap-2">
+                                <button onclick="editProduct('${product.code}')" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 btn text-sm">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteProduct('${product.code}')" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 btn text-sm">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateStoreStats() {
+            const totalProducts = products.length;
+            const totalUnits = products.reduce((sum, p) => sum + parseInt(p.stock || 0), 0);
+            const lowStock = products.filter(p => parseInt(p.stock || 0) < 5).length;
+
+            document.getElementById('storeProducts').textContent = totalProducts;
+            document.getElementById('storeUnits').textContent = totalUnits;
+            document.getElementById('storeLowStock').textContent = lowStock;
+        }
+
+        function filterProducts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#productsTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        // Modal de Producto
+        function openProductModal() {
+            document.getElementById('modalTitle').textContent = 'Nuevo Producto';
+            document.getElementById('productForm').reset();
+            document.getElementById('productId').value = '';
+            document.getElementById('productModal').style.display = 'block';
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
+
+        function saveProduct(event) {
+            event.preventDefault();
+            
+            const code = document.getElementById('productCode').value.trim();
+            const name = document.getElementById('productName').value.trim();
+            const category = document.getElementById('productCategory').value;
+            const stock = parseInt(document.getElementById('productStock').value) || 0;
+            const productId = document.getElementById('productId').value;
+
+            // Validar que no exista un producto con el mismo código (excepto si es edición)
+            const existingProduct = products.find(p => p.code === code && p.id !== productId);
+            if (existingProduct) {
+                showNotification('error', 'Error', 'Ya existe un producto con este código');
+                return;
+            }
+
+            if (productId) {
+                // Editar producto existente
+                const index = products.findIndex(p => p.id === productId);
+                if (index !== -1) {
+                    products[index] = {
+                        ...products[index],
+                        code,
+                        name,
+                        category,
+                        stock
+                    };
+                }
+                showNotification('success', 'Producto Actualizado', 'El producto ha sido actualizado correctamente');
+            } else {
+                // Crear nuevo producto
+                const newProduct = {
+                    id: Date.now().toString(),
+                    code,
+                    name,
+                    category,
+                    stock,
+                    createdAt: new Date().toISOString()
+                };
+                products.push(newProduct);
+                showNotification('success', 'Producto Creado', 'El producto ha sido agregado correctamente');
+            }
+
+            saveProducts();
+            renderProducts();
+            updateStoreStats();
+            closeProductModal();
+        }
+
+        function editProduct(code) {
+            const product = products.find(p => p.code === code);
+            if (!product) return;
+
+            document.getElementById('modalTitle').textContent = 'Editar Producto';
+            document.getElementById('productId').value = product.id;
+            document.getElementById('productCode').value = product.code;
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productCategory').value = product.category || '';
+            document.getElementById('productStock').value = product.stock;
+            
+            document.getElementById('productModal').style.display = 'block';
+        }
+
+        function deleteProduct(code) {
+            if (!confirm('¿Estás seguro de que deseas eliminar este producto?')) return;
+            
+            const index = products.findIndex(p => p.code === code);
+            if (index !== -1) {
+                products.splice(index, 1);
+                saveProducts();
+                renderProducts();
+                updateStoreStats();
+                showNotification('success', 'Producto Eliminado', 'El producto ha sido eliminado correctamente');
+            }
+        }
+
+        function adjustStock(code, change) {
+            const product = products.find(p => p.code === code);
+            if (!product) return;
+
+            const newStock = parseInt(product.stock || 0) + change;
+            if (newStock < 0) return;
+
+            product.stock = newStock;
+            saveProducts();
+            renderProducts();
+            updateStoreStats();
+        }
+
+        function saveProducts() {
+            if (!selectedStore) return;
+            localStorage.setItem('products_' + selectedStore.id, JSON.stringify(products));
+        }
+
+        // Exportación
+        function exportData() {
+            if (!selectedStore || products.length === 0) {
+                showNotification('error', 'Error', 'No hay datos para exportar');
+                return;
+            }
+
+            const csvContent = [
+                ['Código', 'Nombre', 'Categoría', 'Stock'],
+                ...products.map(p => [p.code, p.name, p.category || '', p.stock])
+            ].map(row => row.join(',')).join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `inventario_${selectedStore.name}_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+            showNotification('success', 'Exportación Completa', 'Los datos han sido exportados correctamente');
+        }
+
+        // Notificaciones
+        function showNotification(type, title, message) {
+            const notification = document.getElementById('notification');
+            const icon = document.getElementById('notificationIcon');
+            const titleEl = document.getElementById('notificationTitle');
+            const messageEl = document.getElementById('notificationMessage');
+
+            const icons = {
+                success: '<i class="fas fa-check-circle text-green-500 text-xl"></i>',
+                error: '<i class="fas fa-exclamation-circle text-red-500 text-xl"></i>',
+                info: '<i class="fas fa-info-circle text-blue-500 text-xl"></i>'
+            };
+
+            icon.innerHTML = icons[type] || icons.info;
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+
+            notification.classList.remove('hidden');
+            notification.classList.add('fade-in');
+
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Cerrar modales con ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeProductModal();
+            }
+        });
+
+        // Cerrar modales haciendo clic fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('productModal');
+            if (event.target === modal) {
+                closeProductModal();
+            }
+        }
     </script>
 </body>
 </html>
