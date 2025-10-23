@@ -130,6 +130,9 @@
                     </div>
                 </div>
                 <div class="flex gap-3">
+                    <button onclick="userManager.debugUsers()" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition" title="Depurar usuarios">
+                        <i class="fas fa-bug mr-2"></i>Debug
+                    </button>
                     <button onclick="window.location.href='index.html'" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
                         <i class="fas fa-arrow-left mr-2"></i>Volver al Inventario
                     </button>
@@ -321,18 +324,82 @@
                     const stored = localStorage.getItem('inventario_users');
                     if (stored) {
                         this.users = JSON.parse(stored);
+                    } else {
+                        // Crear usuarios por defecto si no hay ninguno
+                        this.users = [
+                            { 
+                                id: 1, 
+                                username: 'admin', 
+                                password: 'admin123', 
+                                name: 'Administrador',
+                                role: 'admin',
+                                permissions: ['read', 'write', 'delete', 'manage_users'],
+                                createdAt: new Date().toISOString()
+                            },
+                            { 
+                                id: 2, 
+                                username: 'empleado1', 
+                                password: 'emp123', 
+                                name: 'Empleado 1',
+                                role: 'employee',
+                                permissions: ['read', 'write'],
+                                createdAt: new Date().toISOString()
+                            },
+                            { 
+                                id: 3, 
+                                username: 'empleado2', 
+                                password: 'emp123', 
+                                name: 'Empleado 2',
+                                role: 'employee',
+                                permissions: ['read', 'write'],
+                                createdAt: new Date().toISOString()
+                            }
+                        ];
+                        this.saveUsers(); // Guardar los usuarios por defecto
                     }
                 } catch (error) {
                     console.error('Error cargando usuarios:', error);
+                    // En caso de error, crear usuarios por defecto
+                    this.users = [
+                        { 
+                            id: 1, 
+                            username: 'admin', 
+                            password: 'admin123', 
+                            name: 'Administrador',
+                            role: 'admin',
+                            permissions: ['read', 'write', 'delete', 'manage_users'],
+                            createdAt: new Date().toISOString()
+                        }
+                    ];
+                    this.saveUsers();
                 }
             }
 
             saveUsers() {
                 try {
                     localStorage.setItem('inventario_users', JSON.stringify(this.users));
+                    console.log('Usuarios guardados correctamente:', this.users.length, 'usuarios');
+                    
+                    // Verificar que se guardaron correctamente
+                    const verify = localStorage.getItem('inventario_users');
+                    if (verify) {
+                        const parsed = JSON.parse(verify);
+                        console.log('Verificación exitosa:', parsed.length, 'usuarios encontrados');
+                    } else {
+                        console.error('Error: No se pudieron verificar los usuarios guardados');
+                    }
                 } catch (error) {
                     console.error('Error guardando usuarios:', error);
+                    this.showNotification('Error al guardar los usuarios', 'error');
                 }
+            }
+
+            // Función para verificar datos actuales
+            debugUsers() {
+                console.log('=== DEBUG USUARIOS ===');
+                console.log('Usuarios en memoria:', this.users.length);
+                console.log('Usuarios en localStorage:', localStorage.getItem('inventario_users'));
+                console.log('===================');
             }
 
             setupEventListeners() {
