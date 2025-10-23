@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "inventario-lite/**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/inventario-lite/login.html"
+    },
+    {
+      "src": "/login",
+      "dest": "/inventario-lite/login.html"
+    },
+    {
+      "src": "/index",
+      "dest": "/inventario-lite/index.html"
+    },
+    {
+      "src": "/admin",
+      "dest": "/inventario-lite/admin.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/inventario-lite/$1"
+    }
+  ],
+  "outputDirectory": "inventario-lite"
+}

@@ -1,0 +1,33 @@
+{
+  "name": "control-inventario-basico",
+  "version": "2.0.0",
+  "description": "📦 Sistema de gestión de inventario ultra ligero y seguro con control de acceso por usuarios",
+  "main": "inventario-lite/login.html",
+  "scripts": {
+    "start": "serve inventario-lite",
+    "build": "echo 'No build needed - static files ready'",
+    "dev": "serve inventario-lite -l 3000"
+  },
+  "keywords": [
+    "inventario",
+    "gestion",
+    "stock",
+    "login",
+    "usuarios",
+    "ultra-ligero",
+    "javascript",
+    "html5",
+    "css3",
+    "responsive"
+  ],
+  "author": "V3NUZ",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.0"
+  },
+  "homepage": "https://github.com/V3NUZ/Control-Inventario-Basico#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/V3NUZ/Control-Inventario-Basico.git"
+  }
+}
