@@ -1,12 +1,19 @@
-# 📦 Inventario Profesional - Versión Ultra Ligera
+# 📦 Inventario Profesional - Versión MultiTienda
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/Version-2.0-blue.svg)](https://github.com/V3NUZ/Control-Inventario-Basico)
-[![Size](https://img.shields.io/badge/Size-94KB-green.svg)](https://github.com/V3NUZ/Control-Inventario-Basico)
+[![Version](https://img.shields.io/badge/Version-3.0-blue.svg)](https://github.com/V3NUZ/Control-Inventario-Basico)
+[![Size](https://img.shields.io/badge/Size-120KB-green.svg)](https://github.com/V3NUZ/Control-Inventario-Basico)
 
-Un sistema de gestión de inventario **ultra ligero y seguro** con control de acceso por usuarios, diseñado por **V3NUZ** para pymes y emprendedores que necesitan una solución eficiente sin complicaciones.
+Un sistema de gestión de inventario **multi-tienda ultra ligero y seguro** con control de acceso por usuarios, diseñado por **V3NUZ** para pymes y emprendedores que necesitan gestionar múltiples locales desde una sola plataforma.
 
 ## ✨ Características Principales
+
+### 🏪 Sistema MultiTienda
+- 🏬 **Gestión ilimitada de tiendas** desde una sola plataforma
+- 🔄 **Cambio rápido entre tiendas** sin perder sesión
+- 📊 **Vista consolidada** con estadísticas combinadas
+- 🎨 **Identificación visual** por colores personalizados
+- 📈 **Comparación entre tiendas** con gráficas intuitivas
 
 ### 🎯 Gestión de Inventario
 - 📊 **Control de stock inteligente** con botones + y - para ajustes rápidos
@@ -21,13 +28,13 @@ Un sistema de gestión de inventario **ultra ligero y seguro** con control de ac
 - 🛡️ **Control de permisos granular** por roles (Admin/Empleado)
 - ⏰ **Sesiones con expiración automática** (24h + inactividad)
 - 🔒 **Protección contra acceso no autorizado**
-- 👥 **Panel de administración** para gestión de usuarios
+- 👥 **Panel de administración** para gestión de usuarios y tiendas
 
 ### ⚡ Rendimiento y Portabilidad
-- 🚀 **Ultra ligero:** Solo 85KB totales
+- 🚀 **Ultra ligero:** Solo 120KB totales
 - ⚡ **Carga instantánea:** Menos de 1 segundo
-- 💾 **Persistencia local** con localStorage
-- 📥 **Exportación/Importación** de datos en JSON
+- 💾 **Persistencia local** con localStorage por tienda
+- 📥 **Exportación/Importación** de datos en JSON por tienda
 - 🌐 **Listo para deploy** en GitHub + Vercel
 
 ## 🚀 Demostración Rápida

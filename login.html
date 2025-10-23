@@ -340,8 +340,8 @@
                 const expiresAt = new Date(sessionData.expiresAt);
                 
                 if (expiresAt > new Date()) {
-                    // Sesión válida, redirigir
-                    window.location.href = 'index.html';
+                    // Sesión válida, redirigir al selector de tiendas
+                    window.location.href = 'tienda-selector.html';
                     return;
                 } else {
                     // Sesión expirada, limpiar
