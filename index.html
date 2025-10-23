@@ -361,7 +361,7 @@
             async checkAuth() {
                 const currentUserData = localStorage.getItem('currentUser');
                 if (!currentUserData) {
-                    window.location.href = 'login-enhanced.html';
+                    window.location.href = 'login.html';
                     return;
                 }
 
@@ -370,7 +370,7 @@
                     this.updateUserDisplay();
                 } catch (error) {
                     localStorage.removeItem('currentUser');
-                    window.location.href = 'login-enhanced.html';
+                    window.location.href = 'login.html';
                 }
             }
 
