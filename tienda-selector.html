@@ -16,7 +16,6 @@
         - Gestión multi-tienda
         - Selección de tienda al iniciar
         - Inventario separado por tienda
-        - Dashboard consolidado
         - Diseño responsive y moderno
     -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -108,8 +107,8 @@
         </div>
 
         <!-- Tiendas Disponibles -->
-        <div class="max-w-6xl mx-auto">
-            <div id="storesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="max-w-4xl mx-auto">
+            <div id="storesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 justify-items-center">
                 <!-- Las tarjetas de tiendas se cargarán aquí -->
             </div>
 
@@ -592,6 +591,17 @@
                 `).join('');
             }
 
+            loadEmployees() {
+                // Cargar usuarios desde el sistema de login
+                const users = [
+                    { username: 'admin', name: 'Administrador', role: 'admin' },
+                    { username: 'empleado1', name: 'Empleado 1', role: 'empleado' },
+                    { username: 'empleado2', name: 'Empleado 2', role: 'empleado' },
+                    { username: 'vendedor1', name: 'Vendedor 1', role: 'empleado' }
+                ];
+                return users;
+            }
+
             loadEmployeeAssignments() {
                 const assignments = localStorage.getItem('employee_store_assignments');
                 return assignments ? JSON.parse(assignments) : {};
@@ -599,11 +609,6 @@
 
             saveEmployeeAssignments(assignments) {
                 localStorage.setItem('employee_store_assignments', JSON.stringify(assignments));
-            }
-
-            loadEmployees() {
-                const employees = localStorage.getItem('inventario_usuarios');
-                return employees ? JSON.parse(employees) : [];
             }
 
             renderEmployeeAssignments() {

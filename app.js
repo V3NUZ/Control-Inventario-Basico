@@ -131,12 +131,6 @@ class InventoryManager {
         return stores[storeId] || stores['la-estancia'];
     }
 
-    initConsolidatedView() {
-        // Lógica especial para vista consolidada
-        this.isConsolidated = true;
-        localStorage.removeItem('consolidated_view');
-    }
-
     loadFromStorage() {
         try {
             let storageKey = `inventory_products_${this.currentStore.id}`;
