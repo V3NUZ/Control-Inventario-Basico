@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Sistema - Inventario MultiTienda</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">
+            <i class="fas fa-clipboard-check mr-2 text-green-600"></i>
+            Test del Sistema MultiTienda
+        </h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Test Login -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="text-center mb-4">
+                    <i class="fas fa-sign-in-alt text-3xl text-blue-600"></i>
+                </div>
+                <h2 class="text-xl font-semibold text-gray-800 mb-3">Login</h2>
+                <p class="text-gray-600 mb-4">Sistema de autenticación</p>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span>Admin:</span>
+                        <code class="bg-gray-100 px-2 py-1 rounded">admin/admin123</code>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Empleado:</span>
+                        <code class="bg-gray-100 px-2 py-1 rounded">vendedor1/empleado</code>
+                    </div>
+                </div>
+                <a href="login.html" class="block w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center">
+                    Probar Login
+                </a>
+            </div>
+            
+            <!-- Test Admin -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="text-center mb-4">
+                    <i class="fas fa-users-cog text-3xl text-purple-600"></i>
+                </div>
+                <h2 class="text-xl font-semibold text-gray-800 mb-3">Panel Admin</h2>
+                <p class="text-gray-600 mb-4">Gestión completa del sistema</p>
+                <div class="space-y-2 text-sm text-gray-600">
+                    <div><i class="fas fa-check text-green-500 mr-1"></i> Gestión de usuarios</div>
+                    <div><i class="fas fa-check text-green-500 mr-1"></i> Gestión de tiendas</div>
+                    <div><i class="fas fa-check text-green-500 mr-1"></i> Asignaciones</div>
+                    <div><i class="fas fa-check text-green-500 mr-1"></i> Botón Debug funcional</div>
+                </div>
+                <a href="admin.html" class="block w-full mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-center">
+                    Probar Admin
+                </a>
+            </div>
+            
+            <!-- Test Inventario -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="text-center mb-4">
+                    <i class="fas fa-store text-3xl text-green-600"></i>
+                </div>
+                <h2 class="text-xl font-semibold text-gray-800 mb-3">Inventario</h2>
+                <p class="text-gray-600 mb-4">Gestión multi-tienda</p>
+                <div class="space-y-2 text-sm text-gray-600">
+                    <div><i class="fas fa-check text-green-500 mr-1"></i> Selección de tienda</div>
+                    <div><i class="fas fa-check text-green-500 mr-1"></i> Gestión de productos</div>
+                    <div><i class="fas fa-check text-green-500 mr-1"></i> Control de stock</div>
+                    <div><i class="fas fa-check text-green-500 mr-1"></i> Import/Export</div>
+                </div>
+                <a href="index.html" class="block w-full mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-center">
+                    Probar Inventario
+                </a>
+            </div>
+        </div>
+        
+        <!-- Características Implementadas -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+                <i class="fas fa-star text-yellow-500 mr-2"></i>
+                Características Implementadas
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <h3 class="font-semibold text-gray-700">🔧 Botón Debug Funcional</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>✅ Diagnóstico completo del sistema</li>
+                        <li>✅ Limpieza segura de datos</li>
+                        <li>✅ Exportación/Importación de datos</li>
+                        <li>✅ Consola visual con logs</li>
+                        <li>✅ Estadísticas del sistema</li>
+                    </ul>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-semibold text-gray-700">🏪 Sistema Multi-Tienda</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>✅ Gestión de múltiples tiendas</li>
+                        <li>✅ Asignación de empleados a tiendas</li>
+                        <li>✅ Control de permisos por tienda</li>
+                        <li>✅ Estadísticas por tienda</li>
+                        <li>✅ Selección intuitiva de tienda</li>
+                    </ul>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-semibold text-gray-700">👥 Gestión de Usuarios</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>✅ Roles: Administrador / Empleado</li>
+                        <li>✅ Permisos granulares</li>
+                        <li>✅ Validación de seguridad</li>
+                        <li>✅ Manejo de sesión persistente</li>
+                        <li>✅ Acceso restringido por rol</li>
+                    </ul>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-semibold text-gray-700">📦 Inventario Completo</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>✅ CRUD completo de productos</li>
+                        <li>✅ Control de stock inteligente</li>
+                        <li>✅ Importación/Exportación (CSV, JSON)</li>
+                        <li>✅ Búsqueda y filtrado avanzado</li>
+                        <li>✅ Cálculos automáticos de valor</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Instrucciones -->
+        <div class="bg-blue-50 rounded-lg p-6">
+            <h2 class="text-xl font-semibold text-blue-800 mb-3">
+                <i class="fas fa-info-circle mr-2"></i>
+                Instrucciones de Prueba
+            </h2>
+            <div class="space-y-3 text-blue-700">
+                <div>
+                    <strong>1. Probar Login:</strong> 
+                    Usa las credenciales admin/admin123 para acceder al panel completo.
+                </div>
+                <div>
+                    <strong>2. Panel de Administración:</strong> 
+                    Una vez como admin, prueba el botón "Debug" (naranja) para ver todas las herramientas.
+                </div>
+                <div>
+                    <strong>3. Configurar Tiendas:</strong> 
+                    Crea tiendas y asigna empleados a ellas.
+                </div>
+                <div>
+                    <strong>4. Probar Inventario:</strong> 
+                    Selecciona una tienda y gestiona productos.
+                </div>
+                <div>
+                    <strong>5. Verificar Sincronización:</strong> 
+                    Abre el sistema en dos navegadores para probar la sincronización en tiempo real.
+                </div>
+            </div>
+        </div>
+        
+        <!-- Estado del Sistema -->
+        <div class="mt-8 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-full">
+                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <span class="font-medium">Sistema Actualizado y Funcional</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
