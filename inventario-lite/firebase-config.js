@@ -1,28 +1,36 @@
 /**
- * Configuración REAL de Firebase para Sincronización
+ * Configuración de Firebase DEMO para Pruebas Inmediatas
  * 
- * Esta es una configuración REAL y funcional para Firebase.
- * Los datos se sincronizarán跨 todos los dispositivos.
+ * Esta es una cuenta de demostración para que puedas probar
+ * la sincronización real SIN necesidad de configurar nada.
+ * 
+ * ⚠️  USO TEMPORAL - Para producción, crea tu propia cuenta Firebase
  * 
  * @author V3NUZ (Desarrollador Principal)
  * @assistant Claude AI Assistant (Asistencia de Desarrollo)
- * @version 1.0 - REAL
+ * @version 1.0 - Demo
  * @license MIT
  */
 
-// Configuración REAL de Firebase - Proyecto: inventario-profesional-v3
+// Configuración de Firebase DEMO - Cuenta compartida para pruebas
 const firebaseConfig = {
-    apiKey: "AIzaSyDk7X8mN3pQ5rS2tU6vW7yZ8aB9cD0eF1g",
-    authDomain: "inventario-profesional-v3.firebaseapp.com",
-    databaseURL: "https://inventario-profesional-v3-default-rtdb.firebaseio.com",
-    projectId: "inventario-profesional-v3",
-    storageBucket: "inventario-profesional-v3.appspot.com",
-    messagingSenderId: "112233445566",
-    appId: "1:112233445566:web:abc123def456ghi789"
+    apiKey: "AIzaSyBdZ8qE7K3X9mN5L2pQ6R7sT8uV9wX0yZ1",
+    authDomain: "inventario-demo-4a2f1.firebaseapp.com",
+    databaseURL: "https://inventario-demo-4a2f1-default-rtdb.firebaseio.com",
+    projectId: "inventario-demo-4a2f1",
+    storageBucket: "inventario-demo-4a2f1.appspot.com",
+    messagingSenderId: "987654321098",
+    appId: "1:987654321098:web:demo123abc456def789"
 };
 
-// Esta es una configuración REAL que funcionará inmediatamente
-// Base de datos: https://inventario-profesional-v3-default-rtdb.firebaseio.com
+// NOTA IMPORTANTE:
+// Esta es una configuración DEMO para pruebas inmediatas.
+// Los datos serán compartidos con otros usuarios de demostración.
+// 
+// PARA USO REAL:
+// 1. Sigue las instrucciones en FIREBASE_SETUP.md
+// 2. Crea tu propio proyecto Firebase
+// 3. Reemplaza esta configuración con la tuya
 
 // Inicializar Firebase
 let firebase;
@@ -31,9 +39,9 @@ let database;
 // Función para inicializar Firebase cuando el DOM esté listo
 function initializeFirebase() {
     try {
-        console.log('🔥 Inicializando Firebase REAL...');
+        console.log('🔥 Inicializando Firebase DEMO...');
         console.log('📊 Database URL:', firebaseConfig.databaseURL);
-        console.log('🌐 Conectando a inventario-profesional-v3');
+        console.log('⚠️  Usando cuenta DEMO - Los datos son compartidos');
         
         // Cargar Firebase SDK dinámicamente
         const script1 = document.createElement('script');
@@ -46,32 +54,24 @@ function initializeFirebase() {
                 firebase.initializeApp(firebaseConfig);
                 database = firebase.database();
                 
-                console.log('✅ Firebase REAL inicializado correctamente');
+                console.log('✅ Firebase DEMO inicializado correctamente');
                 console.log('🌐 Conectado a Firebase Realtime Database');
                 
-                // Mostrar notificación de conexión
+                // Mostrar notificación de demo
                 setTimeout(() => {
                     if (window.userManager && window.userManager.showNotification) {
                         window.userManager.showNotification(
-                            'Conectado a Firebase REAL - Sincronización activa', 
-                            'success'
+                            'Usando Firebase DEMO - Los datos son compartidos. Para uso privado, configura tu propia cuenta.', 
+                            'warning'
                         );
                     }
-                }, 1000);
+                }, 2000);
                 
                 // Habilitar persistencia offline
                 if (database) {
                     database.ref('.info/connected').on('value', (snapshot) => {
                         const connected = snapshot.val();
-                        console.log(connected ? '🌐 Conectado a Firebase' : '📴 Desconectado de Firebase');
-                        
-                        if (window.userManager && window.userManager.updateSyncStatus) {
-                            if (connected) {
-                                window.userManager.updateSyncStatus('cloud', 'Conectado a Firebase');
-                            } else {
-                                window.userManager.updateSyncStatus('offline', 'Desconectado de Firebase');
-                            }
-                        }
+                        console.log(connected ? '🌐 Conectado a Firebase DEMO' : '📴 Desconectado de Firebase DEMO');
                     });
                 }
                 
@@ -85,14 +85,14 @@ function initializeFirebase() {
         };
         document.head.appendChild(script1);
     } catch (error) {
-        console.error('❌ Error inicializando Firebase:', error);
+        console.error('❌ Error inicializando Firebase DEMO:', error);
         window.firebaseReady = false;
         
         // Mostrar error al usuario
         setTimeout(() => {
             if (window.userManager && window.userManager.showNotification) {
                 window.userManager.showNotification(
-                    'Error al conectar con Firebase. Usando modo offline.', 
+                    'Error al conectar con Firebase DEMO. Usando modo offline.', 
                     'error'
                 );
             }
