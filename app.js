@@ -18,7 +18,7 @@
  * 
  * @author V3NUZ (Desarrollador Principal)
  * @assistant Claude AI Assistant (Asistencia de Desarrollo)
- * @version 3.0 MultiTienda
+ * @version 3.1.0 MultiTienda con Asignación de Empleados
  * @license MIT
  */
 
@@ -42,6 +42,22 @@ class InventoryManager {
     }
 
     checkStoreSelection() {
+        // Verificar autenticación primero
+        const session = localStorage.getItem('inventario_session');
+        if (!session) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        const sessionData = JSON.parse(session);
+        const expiresAt = new Date(sessionData.expiresAt);
+        
+        if (expiresAt <= new Date()) {
+            localStorage.removeItem('inventario_session');
+            window.location.href = 'login.html';
+            return;
+        }
+
         // Verificar si hay una tienda seleccionada
         const urlParams = new URLSearchParams(window.location.search);
         const storeParam = urlParams.get('store');
@@ -49,8 +65,15 @@ class InventoryManager {
         
         // Si viene por parámetro URL, usarlo y guardarlo
         if (storeParam) {
+            const storeData = JSON.parse(storeParam);
+            // Verificar permisos para esta tienda
+            if (!this.canAccessStore(storeData.id, sessionData.user)) {
+                this.showNotification('No tienes permiso para acceder a esta tienda', 'error');
+                window.location.href = 'tienda-selector.html';
+                return;
+            }
             localStorage.setItem('selected_store', storeParam);
-            this.currentStore = this.getStoreInfo(storeParam);
+            this.currentStore = storeData;
             return;
         }
         
@@ -60,7 +83,32 @@ class InventoryManager {
             return;
         }
         
-        this.currentStore = this.getStoreInfo(selectedStore);
+        const storeData = JSON.parse(selectedStore);
+        // Verificar permisos para esta tienda
+        if (!this.canAccessStore(storeData.id, sessionData.user)) {
+            this.showNotification('No tienes permiso para acceder a esta tienda', 'error');
+            window.location.href = 'tienda-selector.html';
+            return;
+        }
+        
+        this.currentStore = storeData;
+    }
+
+    canAccessStore(storeId, user) {
+        // Los administradores pueden acceder a todas las tiendas
+        if (user && user.role === 'admin') {
+            return true;
+        }
+
+        // Verificar asignaciones de empleados
+        const assignments = localStorage.getItem('employee_store_assignments');
+        if (assignments) {
+            const parsedAssignments = JSON.parse(assignments);
+            const userAssignments = parsedAssignments[user.username] || [];
+            return userAssignments.includes(parseInt(storeId)) || userAssignments.includes(storeId);
+        }
+        
+        return false;
     }
     
     getStoreInfo(storeId) {
@@ -171,14 +219,10 @@ class InventoryManager {
 
         // Actualizar información de la tienda en la interfaz
         const storeNameElement = document.getElementById('storeName');
-        const storeLocationElement = document.getElementById('storeLocation');
         const storeColorElement = document.getElementById('storeColor');
 
         if (storeNameElement) {
             storeNameElement.textContent = this.currentStore.name;
-        }
-        if (storeLocationElement) {
-            storeLocationElement.textContent = this.currentStore.location;
         }
         if (storeColorElement && this.currentStore.color) {
             storeColorElement.style.backgroundColor = this.currentStore.color;
@@ -189,34 +233,52 @@ class InventoryManager {
     }
 
     getDefaultProducts() {
-        // Productos diferentes según la tienda
+        // Productos para Pet Shop Agropecuaria
         if (this.currentStore.id === 'la-estancia') {
             return [
                 {
                     id: 1,
-                    name: 'Juego de Sillones',
-                    category: 'Sala',
-                    quantity: 3,
-                    price: 899.99,
-                    notes: 'Sillones de cuero premium',
+                    name: 'Alimento Balanceado Vacuno',
+                    category: 'Ganado',
+                    quantity: 25,
+                    price: 45.99,
+                    notes: 'Bolsa 40kg para engorde',
                     createdAt: new Date().toISOString()
                 },
                 {
                     id: 2,
-                    name: 'Mesa de Comedor',
-                    category: 'Comedor',
+                    name: 'Antiparasitario Canino',
+                    category: 'Medicamentos',
                     quantity: 0,
-                    price: 599.99,
-                    notes: 'Mesa extensible para 8 personas',
+                    price: 28.50,
+                    notes: 'Tratamiento mensual 6 tabletas',
                     createdAt: new Date().toISOString()
                 },
                 {
                     id: 3,
-                    name: 'Lámpara de Pie',
-                    category: 'Iluminación',
-                    quantity: 7,
-                    price: 89.99,
-                    notes: 'Lámpara LED regulable',
+                    name: 'Shampoo Antipulgas Gatos',
+                    category: 'Higiene',
+                    quantity: 12,
+                    price: 15.99,
+                    notes: 'Frasco 250ml',
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: 4,
+                    name: 'Vitaminas Pollo Engorde',
+                    category: 'Aves',
+                    quantity: 8,
+                    price: 22.75,
+                    notes: 'Presentación 1kg',
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: 5,
+                    name: 'Collar Antipulgas Mediano',
+                    category: 'Accesorios',
+                    quantity: 15,
+                    price: 12.99,
+                    notes: 'Para perros 10-25kg',
                     createdAt: new Date().toISOString()
                 }
             ];
@@ -224,29 +286,47 @@ class InventoryManager {
             return [
                 {
                     id: 1,
-                    name: 'Alimento Premium Perros',
+                    name: 'Alimento Premium Perros Adultos',
                     category: 'Alimentos',
-                    quantity: 15,
-                    price: 45.99,
-                    notes: 'Bolsa 15kg sabor pollo',
+                    quantity: 30,
+                    price: 52.99,
+                    notes: 'Bolsa 20kg sabor carne',
                     createdAt: new Date().toISOString()
                 },
                 {
                     id: 2,
-                    name: 'Juguete Interactivo Gatos',
+                    name: 'Juguete Mordedor Gatos',
                     category: 'Juguetes',
                     quantity: 0,
-                    price: 12.99,
-                    notes: 'Juguete con plumas y sonido',
+                    price: 8.99,
+                    notes: 'Con catnip incluido',
                     createdAt: new Date().toISOString()
                 },
                 {
                     id: 3,
                     name: 'Cama Ortopédica Grande',
                     category: 'Accesorios',
-                    quantity: 4,
-                    price: 79.99,
+                    quantity: 6,
+                    price: 89.99,
                     notes: 'Para perros grandes',
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: 4,
+                    name: 'Vacuna Triple Felina',
+                    category: 'Medicamentos',
+                    quantity: 4,
+                    price: 35.50,
+                    notes: 'Dosis única con jeringa',
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: 5,
+                    name: 'Arena Sanitaria Gatos',
+                    category: 'Higiene',
+                    quantity: 20,
+                    price: 18.75,
+                    notes: 'Bolsa 10kg aglomerante',
                     createdAt: new Date().toISOString()
                 }
             ];

@@ -10,7 +10,7 @@
         
         Desarrollado por: V3NUZ
         Asistencia de Desarrollo: Claude AI Assistant
-        Versión: 3.0 MultiTienda
+        Versión: 3.1.0 MultiTienda con Asignación de Empleados
         Licencia: MIT License
         
         Características principales:
@@ -114,11 +114,11 @@
                 <!-- Las tarjetas de tiendas se cargarán aquí -->
             </div>
 
-            <!-- Botón de Gestión Consolidada -->
+            <!-- Botón de Asignación de Empleados -->
             <div class="text-center mb-8 fade-in">
-                <button onclick="openConsolidatedView()" class="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-                    <i class="fas fa-chart-line mr-2"></i>
-                    Vista Consolidada de Todas las Tiendas
+                <button onclick="mostrarAsignacionEmpleados()" class="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                    <i class="fas fa-users mr-2"></i>
+                    Asignar Empleados a Tiendas
                 </button>
             </div>
 
@@ -186,6 +186,43 @@
             </div>
         </div>
 
+        <!-- Modal de Asignación de Empleados -->
+        <div id="employeeAssignmentModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+            <div class="glass-effect rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Asignar Empleados a Tiendas</h2>
+                    <button onclick="cerrarAsignacionEmpleados()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Lista de Empleados -->
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-3">Empleados Disponibles</h3>
+                        <div id="employeesList" class="space-y-2 max-h-96 overflow-y-auto">
+                            <!-- Lista de empleados se cargará aquí -->
+                        </div>
+                    </div>
+                    
+                    <!-- Asignaciones por Tienda -->
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-3">Asignaciones Actuales</h3>
+                        <div id="assignmentsList" class="space-y-2 max-h-96 overflow-y-auto">
+                            <!-- Asignaciones se cargarán aquí -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-blue-800">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Los empleados solo podrán acceder a las tiendas que les sean asignadas. Los administradores pueden acceder a todas las tiendas.
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <!-- Notificación -->
         <div id="notification" class="fixed top-4 right-4 bg-white px-6 py-4 rounded-lg shadow-lg border-l-4 border-green-500 hidden z-50">
             <div class="flex items-center">
@@ -207,7 +244,7 @@
          * 
          * @author V3NUZ (Desarrollador Principal)
          * @assistant Claude AI Assistant (Asistencia de Desarrollo)
-         * @version 3.0 MultiTienda
+         * @version 3.1.0 MultiTienda con Asignación de Empleados
          * @license MIT
          */
         
@@ -274,18 +311,18 @@
                 return [
                     {
                         id: 1,
-                        name: 'Tienda Principal - Centro',
-                        location: 'Centro Comercial Plaza',
+                        name: 'AgroPet Shop - Centro',
+                        location: 'Tienda Principal',
                         color: '#667eea',
-                        description: 'Tienda principal con mayor inventario',
+                        description: 'Productos agropecuarios y para mascotas',
                         createdAt: new Date().toISOString()
                     },
                     {
                         id: 2,
-                        name: 'Tienda Secundaria - Norte',
-                        location: 'Avenida Principal #123',
+                        name: 'AgroPet Shop - Norte',
+                        location: 'Sucursal Norte',
                         color: '#f59e0b',
-                        description: 'Tienda del sector norte',
+                        description: 'Especializada en animales domésticos',
                         createdAt: new Date().toISOString()
                     }
                 ];
@@ -320,21 +357,26 @@
                 const container = document.getElementById('storesContainer');
                 if (!container) return;
 
-                if (this.stores.length === 0) {
+                // Obtener tiendas accesibles para el usuario actual
+                const accessibleStores = this.getAccessibleStores();
+
+                if (accessibleStores.length === 0) {
                     container.innerHTML = `
                         <div class="col-span-full text-center py-12">
                             <i class="fas fa-store-slash text-6xl text-white/50 mb-4"></i>
-                            <h3 class="text-xl font-semibold text-white mb-2">No hay tiendas configuradas</h3>
-                            <p class="text-white/75 mb-4">Crea tu primera tienda para comenzar</p>
-                            <button onclick="openStoreManagement()" class="px-6 py-3 bg-white text-purple-600 rounded-lg font-medium hover:bg-gray-100 transition">
-                                <i class="fas fa-plus mr-2"></i>Crear Primera Tienda
-                            </button>
+                            <h3 class="text-xl font-semibold text-white mb-2">No tienes tiendas asignadas</h3>
+                            <p class="text-white/75 mb-4">Contacta a un administrador para que te asigne tiendas</p>
+                            ${this.currentUser && this.currentUser.role === 'admin' ? `
+                                <button onclick="openStoreManagement()" class="px-6 py-3 bg-white text-purple-600 rounded-lg font-medium hover:bg-gray-100 transition">
+                                    <i class="fas fa-plus mr-2"></i>Crear Tienda
+                                </button>
+                            ` : ''}
                         </div>
                     `;
                     return;
                 }
 
-                container.innerHTML = this.stores.map(store => {
+                container.innerHTML = accessibleStores.map(store => {
                     const stats = this.getStoreStats(store.id);
                     return `
                         <div class="store-card glass-effect rounded-xl p-6 fade-in" onclick="selectStore(${store.id})">
@@ -395,11 +437,43 @@
                 const store = this.stores.find(s => s.id === storeId);
                 if (!store) return;
 
+                // Verificar permisos del usuario
+                if (!this.canAccessStore(storeId)) {
+                    this.showNotification('No tienes permiso para acceder a esta tienda', 'error');
+                    return;
+                }
+
                 // Guardar tienda seleccionada
                 localStorage.setItem('selected_store', JSON.stringify(store));
                 
                 // Redirigir al inventario
                 window.location.href = 'index.html';
+            }
+
+            canAccessStore(storeId) {
+                // Los administradores pueden acceder a todas las tiendas
+                if (this.currentUser && this.currentUser.role === 'admin') {
+                    return true;
+                }
+
+                // Verificar asignaciones de empleados
+                const assignments = this.loadEmployeeAssignments();
+                const userAssignments = assignments[this.currentUser.username] || [];
+                
+                return userAssignments.includes(storeId);
+            }
+
+            getAccessibleStores() {
+                // Los administradores pueden acceder a todas las tiendas
+                if (this.currentUser && this.currentUser.role === 'admin') {
+                    return this.stores;
+                }
+
+                // Filtrar tiendas asignadas al usuario
+                const assignments = this.loadEmployeeAssignments();
+                const userAssignments = assignments[this.currentUser.username] || [];
+                
+                return this.stores.filter(store => userAssignments.includes(store.id));
             }
 
             saveStore() {
@@ -520,10 +594,87 @@
                 `).join('');
             }
 
-            openConsolidatedView() {
-                // Redirigir a vista consolidada
-                localStorage.setItem('consolidated_view', 'true');
-                window.location.href = 'consolidated.html';
+            loadEmployeeAssignments() {
+                const assignments = localStorage.getItem('employee_store_assignments');
+                return assignments ? JSON.parse(assignments) : {};
+            }
+
+            saveEmployeeAssignments(assignments) {
+                localStorage.setItem('employee_store_assignments', JSON.stringify(assignments));
+            }
+
+            loadEmployees() {
+                const employees = localStorage.getItem('inventario_usuarios');
+                return employees ? JSON.parse(employees) : [];
+            }
+
+            renderEmployeeAssignments() {
+                const employeesList = document.getElementById('employeesList');
+                const assignmentsList = document.getElementById('assignmentsList');
+                const assignments = this.loadEmployeeAssignments();
+                const employees = this.loadEmployees();
+
+                if (!employeesList || !assignmentsList) return;
+
+                // Renderizar lista de empleados
+                employeesList.innerHTML = employees.map(employee => {
+                    const employeeAssignments = assignments[employee.username] || [];
+                    return `
+                        <div class="p-3 bg-white rounded-lg border border-gray-200">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <div class="font-medium text-gray-800">${this.escapeHtml(employee.name)}</div>
+                                    <div class="text-sm text-gray-500">${this.escapeHtml(employee.username)}</div>
+                                    <div class="text-xs text-gray-400">${employee.role}</div>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+                                    <i class="fas fa-user text-purple-600 text-sm"></i>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                ${this.stores.map(store => `
+                                    <label class="flex items-center gap-2 text-sm">
+                                        <input type="checkbox" 
+                                               value="${store.id}"
+                                               ${employeeAssignments.includes(store.id) ? 'checked' : ''}
+                                               onchange="toggleEmployeeStore('${employee.username}', ${store.id})"
+                                               class="rounded text-purple-600 focus:ring-purple-500">
+                                        <span class="text-gray-700">${this.escapeHtml(store.name)}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Renderizar asignaciones por tienda
+                assignmentsList.innerHTML = this.stores.map(store => {
+                    const assignedEmployees = employees.filter(emp => 
+                        (assignments[emp.username] || []).includes(store.id)
+                    );
+                    
+                    return `
+                        <div class="p-3 bg-white rounded-lg border border-gray-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center" style="background-color: ${store.color}">
+                                    <i class="fas fa-store text-white text-xs"></i>
+                                </div>
+                                <div class="font-medium text-gray-800">${this.escapeHtml(store.name)}</div>
+                                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                                    ${assignedEmployees.length} empleados
+                                </span>
+                            </div>
+                            <div class="space-y-1">
+                                ${assignedEmployees.length > 0 ? assignedEmployees.map(emp => `
+                                    <div class="text-sm text-gray-600 flex items-center gap-2">
+                                        <i class="fas fa-user text-gray-400 text-xs"></i>
+                                        ${this.escapeHtml(emp.name)} (${emp.username})
+                                    </div>
+                                `).join('') : '<div class="text-sm text-gray-400 italic">Sin empleados asignados</div>'}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
             }
 
             showNotification(message, type = 'success') {
@@ -580,8 +731,32 @@
             multiStoreManager.closeStoreManagement();
         }
 
-        function openConsolidatedView() {
-            multiStoreManager.openConsolidatedView();
+        function mostrarAsignacionEmpleados() {
+            multiStoreManager.renderEmployeeAssignments();
+            document.getElementById('employeeAssignmentModal').style.display = 'flex';
+        }
+
+        function cerrarAsignacionEmpleados() {
+            document.getElementById('employeeAssignmentModal').style.display = 'none';
+        }
+
+        function toggleEmployeeStore(username, storeId) {
+            const assignments = multiStoreManager.loadEmployeeAssignments();
+            
+            if (!assignments[username]) {
+                assignments[username] = [];
+            }
+            
+            const index = assignments[username].indexOf(storeId);
+            if (index > -1) {
+                assignments[username].splice(index, 1);
+            } else {
+                assignments[username].push(storeId);
+            }
+            
+            multiStoreManager.saveEmployeeAssignments(assignments);
+            multiStoreManager.renderEmployeeAssignments();
+            multiStoreManager.showNotification('Asignación actualizada correctamente');
         }
 
         // Inicializar
