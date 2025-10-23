@@ -139,7 +139,7 @@
         <div id="storeSelectionView" class="glass-effect rounded-2xl shadow-xl p-6 fade-in">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-bold text-gray-800">
-                    <i class="fas fa-store mr-2 text-purple-600"></i>Seleccionar Tienda
+                    <i class="fas fa-store mr-2 text-purple-600"></i>Mis Tiendas
                 </h2>
                 <button onclick="refreshStores()" class="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 btn text-sm">
                     <i class="fas fa-sync-alt mr-1"></i>Actualizar
@@ -152,7 +152,7 @@
             
             <div id="noStoresMessage" class="text-center py-8 hidden">
                 <i class="fas fa-store-slash text-6xl text-gray-300 mb-4"></i>
-                <h3 class="text-xl font-semibold text-gray-600 mb-2">No hay tiendas disponibles</h3>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">No tienes tiendas asignadas</h3>
                 <p class="text-gray-500">Contacta al administrador para que te asigne tiendas</p>
             </div>
         </div>
@@ -352,11 +352,13 @@
         let selectedStore = null;
         let stores = [];
         let products = [];
+        let userAssignments = [];
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
             checkAuth();
             loadUserData();
+            loadUserAssignments();
             loadStores();
         });
 
@@ -397,10 +399,27 @@
             }
         }
 
+        // Cargar asignaciones del usuario
+        function loadUserAssignments() {
+            if (currentUser.role === 'admin') {
+                // Los administradores ven todas las tiendas
+                userAssignments = ['la_estancia', 'animal_world'];
+            } else {
+                // Los empleados solo ven sus tiendas asignadas
+                const assignments = localStorage.getItem('userAssignments');
+                if (assignments) {
+                    const allAssignments = JSON.parse(assignments);
+                    userAssignments = allAssignments[currentUser.id] || [];
+                } else {
+                    userAssignments = [];
+                }
+            }
+        }
+
         // Gestión de Tiendas
         function loadStores() {
-            // Cargar tiendas base
-            stores = [
+            // Cargar todas las tiendas base
+            const allStores = [
                 {
                     id: 'la_estancia',
                     name: 'La Estancia',
@@ -415,11 +434,8 @@
                 }
             ];
 
-            // Filtrar tiendas según el rol del usuario
-            if (currentUser.role !== 'admin') {
-                const userStores = JSON.parse(localStorage.getItem('userStores_' + currentUser.username) || '[]');
-                stores = stores.filter(store => userStores.includes(store.id));
-            }
+            // Filtrar tiendas según las asignaciones del usuario
+            stores = allStores.filter(store => userAssignments.includes(store.id));
 
             renderStores();
         }
@@ -480,6 +496,7 @@
 
         function refreshStores() {
             showNotification('info', 'Actualizando', 'Recargando lista de tiendas...');
+            loadUserAssignments();
             loadStores();
         }
 
