@@ -61,6 +61,22 @@
             transform: translateY(-1px);
         }
         
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .nav-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .nav-btn:active {
+            transform: translateY(0);
+        }
+        
         .tab-button.active {
             background: #7c3aed;
             color: white;
@@ -79,6 +95,25 @@
         .employee-card:hover {
             background: #f9fafb;
         }
+        
+        .permission-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin: 2px;
+        }
+        
+        .permission-granted {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .permission-denied {
+            background: #fee2e2;
+            color: #991b1b;
+        }
     </style>
 </head>
 <body class="gradient-bg">
@@ -95,39 +130,87 @@
                 </div>
             </div>
             
-            <div class="flex items-center gap-4">
-                <div class="text-right">
+            <!-- Navegación Principal -->
+            <nav class="flex items-center gap-4">
+                <div class="text-right mr-4">
                     <div class="text-sm font-medium text-gray-800" id="currentUser">Administrador</div>
                     <div class="text-xs text-gray-600">Administrador</div>
                 </div>
+                
                 <div class="flex gap-2">
-                    <button onclick="window.location.href='index.html'" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 btn">
+                    <button onclick="window.location.href='index.html'" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 nav-btn">
                         <i class="fas fa-arrow-left mr-2"></i>Inventario
                     </button>
-                    <button onclick="logout()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 btn">
+                    <button onclick="logout()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 nav-btn">
                         <i class="fas fa-sign-out-alt mr-2"></i>Salir
                     </button>
                 </div>
-            </div>
+            </nav>
         </div>
     </header>
 
     <!-- Pestañas -->
     <div class="glass-effect rounded-2xl shadow-xl p-2 mb-6 fade-in">
         <div class="flex flex-wrap gap-2">
-            <button onclick="switchTab('users')" class="tab-button active px-4 py-2 rounded-lg font-medium" data-tab="users">
+            <button onclick="switchTab('dashboard')" class="tab-button active px-4 py-2 rounded-lg font-medium" data-tab="dashboard">
+                <i class="fas fa-chart-line mr-2"></i>Dashboard
+            </button>
+            <button onclick="switchTab('users')" class="tab-button px-4 py-2 rounded-lg font-medium" data-tab="users">
                 <i class="fas fa-users mr-2"></i>Usuarios
             </button>
             <button onclick="switchTab('assignments')" class="tab-button px-4 py-2 rounded-lg font-medium" data-tab="assignments">
                 <i class="fas fa-user-tag mr-2"></i>Asignaciones
+            </button>
+            <button onclick="switchTab('permissions')" class="tab-button px-4 py-2 rounded-lg font-medium" data-tab="permissions">
+                <i class="fas fa-shield-alt mr-2"></i>Permisos
             </button>
         </div>
     </div>
 
     <!-- Contenido -->
     <div class="container mx-auto p-4">
+        <!-- Dashboard -->
+        <div id="dashboard-tab" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="glass-effect rounded-xl p-6 text-center fade-in">
+                    <div class="text-3xl font-bold text-purple-600" id="totalUsers">0</div>
+                    <div class="text-gray-600">Total Usuarios</div>
+                </div>
+                <div class="glass-effect rounded-xl p-6 text-center fade-in">
+                    <div class="text-3xl font-bold text-red-600" id="adminCount">0</div>
+                    <div class="text-gray-600">Administradores</div>
+                </div>
+                <div class="glass-effect rounded-xl p-6 text-center fade-in">
+                    <div class="text-3xl font-bold text-blue-600" id="employeeCount">0</div>
+                    <div class="text-gray-600">Empleados</div>
+                </div>
+                <div class="glass-effect rounded-xl p-6 text-center fade-in">
+                    <div class="text-3xl font-bold text-green-600" id="storeCount">2</div>
+                    <div class="text-gray-600">Tiendas</div>
+                </div>
+            </div>
+
+            <div class="glass-effect rounded-2xl shadow-xl p-6 fade-in">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Resumen del Sistema</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3">Usuarios por Rol</h3>
+                        <div id="userRoleStats" class="space-y-2">
+                            <!-- Estadísticas se cargarán aquí -->
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3">Asignaciones por Tienda</h3>
+                        <div id="storeAssignmentStats" class="space-y-2">
+                            <!-- Estadísticas se cargarán aquí -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Usuarios -->
-        <div id="users-tab" class="tab-content">
+        <div id="users-tab" class="tab-content hidden">
             <div class="glass-effect rounded-2xl shadow-xl p-6 fade-in">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-bold text-gray-800">Gestión de Usuarios</h2>
@@ -171,6 +254,136 @@
                         Los empleados solo pueden acceder a las tiendas que les han sido asignadas. 
                         Los administradores pueden acceder a todas las tiendas.
                     </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Permisos -->
+        <div id="permissions-tab" class="tab-content hidden">
+            <div class="glass-effect rounded-2xl shadow-xl p-6 fade-in">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Matriz de Permisos</h2>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Permisos por Rol</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Módulo</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-center">Administrador</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-center">Empleado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-medium">Ver todas las tiendas</td>
+                                    <td class="border border-gray-300 px-4 py-2 text-center">
+                                        <span class="permission-badge permission-granted">
+                                            <i class="fas fa-check mr-1"></i>Sí
+                                        </span>
+                                    </td>
+                                    <td class="border border-gray-300 px-4 py-2 text-center">
+                                        <span class="permission-badge permission-denied">
+                                            <i class="fas fa-times mr-1"></i>No
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="border border-gray-300 px-4 py-2 font-medium">Gestionar usuarios</td>
+                                    <td class="border border-gray-300 px-4 py-2 text-center">
+                                        <span class="permission-badge permission-granted">
+                                            <i class="fas fa-check mr-1"></i>Sí
+                                        </span>
+                                    </td>
+                                    <td class="border border-gray-300 px-4 py-2 text-center">
+                                        <span class="permission-badge permission-denied">
+                                            <i class="fas fa-times mr-1"></i>No
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-medium">Asignar empleados a tiendas</td>
+                                    <td class="border border-gray-300 px-4 py-2 text-center">
+                                        <span class="permission-badge permission-granted">
+                                            <i class="fas fa-check mr-1"></i>Sí
+                                        </span>
+                                    </td>
+                                    <td class="border border-gray-300 px-4 py-2 text-center">
+                                        <span class="permission-badge permission-denied">
+                                            <i class="fas fa-times mr-1"></i>No
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="border border-gray-300 px-4 py-2 font-medium">Crear/editar productos</td>
+                                    <td class="border border-gray-300 px-4 py-2 text-center">
+                                        <span class="permission-badge permission-granted">
+                                            <i class="fas fa-check mr-1"></i>Sí
+                                        </span>
+                                    </td>
+                                    <td class="border border-gray-300 px-4 py-2 text-center">
+                                        <span class="permission-badge permission-granted">
+                                            <i class="fas fa-check mr-1"></i>Sí
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2 font-medium">Eliminar productos</td>
+                                    <td class="border border-gray-300 px-4 py-2 text-center">
+                                        <span class="permission-badge permission-granted">
+                                            <i class="fas fa-check mr-1"></i>Sí
+                                        </span>
+                                    </td>
+                                    <td class="border border-gray-300 px-4 py-2 text-center">
+                                        <span class="permission-badge permission-granted">
+                                            <i class="fas fa-check mr-1"></i>Sí
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="border border-gray-300 px-4 py-2 font-medium">Importar/Exportar datos</td>
+                                    <td class="border border-gray-300 px-4 py-2 text-center">
+                                        <span class="permission-badge permission-granted">
+                                            <i class="fas fa-check mr-1"></i>Sí
+                                        </span>
+                                    </td>
+                                    <td class="border border-gray-300 px-4 py-2 text-center">
+                                        <span class="permission-badge permission-granted">
+                                            <i class="fas fa-check mr-1"></i>Sí
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-purple-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-purple-800 mb-2">
+                            <i class="fas fa-user-shield mr-2"></i>Administrador
+                        </h4>
+                        <ul class="text-sm text-purple-700 space-y-1">
+                            <li>• Acceso completo a todas las tiendas</li>
+                            <li>• Gestión de usuarios y permisos</li>
+                            <li>• Asignación de empleados a tiendas</li>
+                            <li>• Control total del inventario</li>
+                            <li>• Acceso a panel de administración</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-blue-800 mb-2">
+                            <i class="fas fa-user mr-2"></i>Empleado
+                        </h4>
+                        <ul class="text-sm text-blue-700 space-y-1">
+                            <li>• Acceso solo a tiendas asignadas</li>
+                            <li>• Gestión básica de inventario</li>
+                            <li>• Crear y editar productos</li>
+                            <li>• Importar y exportar datos</li>
+                            <li>• Sin acceso a administración</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -253,7 +466,7 @@
             loadAssignments();
             
             // Cargar la primera pestaña
-            switchTab('users');
+            switchTab('dashboard');
         });
 
         // Autenticación
@@ -268,6 +481,9 @@
                 window.location.href = 'index.html';
                 return;
             }
+            
+            // Actualizar información del usuario
+            document.getElementById('currentUser').textContent = currentUser.name || currentUser.username;
         }
 
         function logout() {
@@ -294,11 +510,74 @@
             document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
             
             // Cargar datos específicos de la pestaña
-            if (tabName === 'users') {
+            if (tabName === 'dashboard') {
+                loadDashboard();
+            } else if (tabName === 'users') {
                 renderUsers();
             } else if (tabName === 'assignments') {
                 renderAssignments();
             }
+        }
+
+        // Dashboard
+        function loadDashboard() {
+            updateDashboardStats();
+            renderUserRoleStats();
+            renderStoreAssignmentStats();
+        }
+
+        function updateDashboardStats() {
+            const totalUsers = users.length;
+            const adminCount = users.filter(u => u.role === 'admin').length;
+            const employeeCount = users.filter(u => u.role === 'employee').length;
+            
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('adminCount').textContent = adminCount;
+            document.getElementById('employeeCount').textContent = employeeCount;
+        }
+
+        function renderUserRoleStats() {
+            const container = document.getElementById('userRoleStats');
+            const roleStats = {
+                admin: users.filter(u => u.role === 'admin').length,
+                employee: users.filter(u => u.role === 'employee').length
+            };
+            
+            container.innerHTML = Object.entries(roleStats).map(([role, count]) => {
+                const roleInfo = role === 'admin' ? 
+                    { name: 'Administradores', color: 'red', icon: 'fa-user-shield' } :
+                    { name: 'Empleados', color: 'blue', icon: 'fa-user' };
+                
+                return `
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <i class="fas ${roleInfo.icon} text-${roleInfo.color}-600"></i>
+                            <span class="font-medium">${roleInfo.name}</span>
+                        </div>
+                        <span class="text-2xl font-bold text-${roleInfo.color}-600">${count}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderStoreAssignmentStats() {
+            const container = document.getElementById('storeAssignmentStats');
+            
+            container.innerHTML = stores.map(store => {
+                const assignedEmployees = Object.keys(assignments)
+                    .filter(userId => assignments[userId].includes(store.id))
+                    .length;
+                
+                return `
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-store text-purple-600"></i>
+                            <span class="font-medium">${store.name}</span>
+                        </div>
+                        <span class="text-lg font-bold text-purple-600">${assignedEmployees} empleados</span>
+                    </div>
+                `;
+            }).join('');
         }
 
         // Gestión de Usuarios
@@ -349,6 +628,7 @@
             usersList.innerHTML = users.map(user => {
                 const roleClass = user.role === 'admin' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800';
                 const roleText = user.role === 'admin' ? 'Administrador' : 'Empleado';
+                const assignedStores = assignments[user.id] || [];
                 
                 return `
                     <div class="bg-white rounded-lg p-4 shadow-md employee-card">
@@ -360,6 +640,7 @@
                                 <div>
                                     <h3 class="font-semibold text-gray-800">${user.name}</h3>
                                     <p class="text-sm text-gray-600">@${user.username}</p>
+                                    <p class="text-xs text-gray-500">${assignedStores.length} tienda(s) asignada(s)</p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-3">
