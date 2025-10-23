@@ -17,7 +17,6 @@
  * - Soporte multi-tienda
  * 
  * @author V3NUZ (Desarrollador Principal)
- * @assistant Claude AI Assistant (Asistencia de Desarrollo)
  * @version 3.1.0 MultiTienda con Asignación de Empleados
  * @license MIT
  */
