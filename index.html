@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario Profesional</title>
+    <!--
+        Inventario Profesional - Versión Ultra Ligera
+        Sistema de Gestión de Inventario con Control de Acceso
+        
+        Desarrollado por: V3NUZ
+        Asistencia de Desarrollo: Claude AI Assistant
+        Versión: 2.0 con Sistema de Login
+        Licencia: MIT License
+        
+        Características principales:
+        - Gestión completa de inventario
+        - Control de stock con alertas automáticas
+        - Sistema de usuarios y permisos
+        - Diseño responsive y moderno
+        - Ultra ligero (94KB total)
+    -->
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .search-input, .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .search-input:focus, .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .products-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .product-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .product-card.stock-zero {
+            border-left: 4px solid #ef4444;
+            background: #fef2f2;
+        }
+        
+        .product-card.stock-low {
+            border-left: 4px solid #f59e0b;
+            background: #fffbeb;
+        }
+        
+        .product-card.stock-good {
+            border-left: 4px solid #10b981;
+        }
+        
+        .product-info {
+            flex: 1;
+        }
+        
+        .product-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .product-details {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .badge-warning {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .badge-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .product-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f5f5f5;
+            padding: 5px;
+            border-radius: 8px;
+        }
+        
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        .quantity-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .quantity-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-minus {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-plus {
+            background: #10b981;
+            color: white;
+        }
+        
+        .quantity-display {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-icon {
+            width: 35px;
+            height: 35px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .btn-edit {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-icon:hover {
+            transform: scale(1.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .form-actions button {
+            flex: 1;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-left: 4px solid #10b981;
+            z-index: 2000;
+            display: none;
+        }
+        
+        .notification.error {
+            border-left-color: #ef4444;
+        }
+        
+        .notification.warning {
+            border-left-color: #f59e0b;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .product-card {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .product-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">📦</div>
+                <div>
+                    <h1>Inventario Profesional</h1>
+                    <p style="font-size: 0.9em; color: #666;">Control de productos</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f3f4f6; border-radius: 8px;">
+                    <i class="fas fa-user-circle" style="color: #667eea;"></i>
+                    <span id="userInfo" style="font-size: 0.9em; font-weight: 500;"></span>
+                </div>
+                <button class="btn-secondary" onclick="window.location.href='admin.html'" id="adminBtn" style="padding: 8px 16px; font-size: 0.9em; background: #8b5cf6;">👥 Administración</button>
+                <button class="btn-secondary" onclick="exportData()" style="padding: 8px 16px; font-size: 0.9em;">📥 Exportar</button>
+                <button class="btn-secondary" onclick="importData()" style="padding: 8px 16px; font-size: 0.9em;">📤 Importar</button>
+                <button class="btn-primary" onclick="openModal()" id="addProductBtn">➕ Agregar Producto</button>
+                <button class="btn-secondary" onclick="logout()" style="padding: 8px 16px; font-size: 0.9em; background: #ef4444;">🚪 Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <!-- Estadísticas -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" style="color: #667eea;" id="totalProducts">0</div>
+                <div class="stat-label">Total Productos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: #3b82f6;" id="totalStock">0</div>
+                <div class="stat-label">Unidades Totales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: #ef4444;" id="neededProducts">0</div>
+                <div class="stat-label">Necesitamos Reponer</div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters">
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍 Buscar productos...">
+            <select class="filter-select" id="categoryFilter">
+                <option value="">Todas las categorías</option>
+            </select>
+            <select class="filter-select" id="stockFilter">
+                <option value="">Todo el stock</option>
+                <option value="zero">Sin stock (necesitamos)</option>
+                <option value="low">Stock bajo</option>
+                <option value="good">Stock disponible</option>
+            </select>
+        </div>
+
+        <!-- Lista de productos -->
+        <div class="products-container">
+            <h2 style="margin-bottom: 15px;">Productos en Inventario</h2>
+            <div id="productsList"></div>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">📦</div>
+                <h3>No hay productos en el inventario</h3>
+                <p>Agrega tu primer producto para comenzar</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Agregar Producto</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="productForm">
+                <input type="hidden" id="productId">
+                
+                <div class="form-group">
+                    <label class="form-label">Nombre del producto *</label>
+                    <input type="text" class="form-input" id="productName" required placeholder="Ej: Laptop Dell XPS">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Categoría *</label>
+                    <input type="text" class="form-input" id="productCategory" required placeholder="Ej: Electrónicos, Ropa, Alimentos">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Cantidad inicial *</label>
+                    <input type="number" class="form-input" id="productQuantity" required min="0" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Precio (opcional)</label>
+                    <input type="number" class="form-input" id="productPrice" min="0" step="0.01" placeholder="0.00">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Notas (opcional)</label>
+                    <textarea class="form-input" id="productNotes" rows="3" placeholder="Notas adicionales..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">💾 Guardar Producto</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <!-- Hidden file input -->
+    <input type="file" id="fileInput" accept=".json" style="display: none;">
+
+    <script src="app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script>
+        /**
+         * Sistema de Verificación de Sesión y Control de Acceso
+         * 
+         * Este módulo maneja:
+         * - Verificación de sesión activa
+         - Control de permisos de usuario
+         - Redirección automática por sesión expirada
+         - Configuración de UI según rol
+         - Timer de inactividad para cierre automático
+         * 
+         * @author V3NUZ (Desarrollador Principal)
+         * @assistant Claude AI Assistant (Asistencia de Desarrollo)
+         * @version 2.0
+         * @license MIT
+         */
+        
+        // Verificar sesión al cargar
+        function checkSession() {
+            const session = localStorage.getItem('inventario_session');
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const sessionData = JSON.parse(session);
+            const expiresAt = new Date(sessionData.expiresAt);
+            
+            if (expiresAt <= new Date()) {
+                localStorage.removeItem('inventario_session');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Mostrar información del usuario
+            const userInfo = document.getElementById('userInfo');
+            if (userInfo) {
+                userInfo.textContent = sessionData.user.name;
+            }
+            
+            // Verificar permisos
+            checkPermissions(sessionData.user.permissions);
+        }
+        
+        function checkPermissions(permissions) {
+            // Ocultar botones de agregar/editar/eliminar si no tiene permisos
+            if (!permissions.includes('write')) {
+                const addBtn = document.getElementById('addProductBtn');
+                if (addBtn) addBtn.style.display = 'none';
+            }
+            
+            // Ocultar botón de administración si no tiene permisos
+            if (!permissions.includes('manage_users')) {
+                const adminBtn = document.getElementById('adminBtn');
+                if (adminBtn) adminBtn.style.display = 'none';
+            }
+            
+            if (!permissions.includes('delete')) {
+                // Los botones de eliminar se ocultarán en renderProducts
+            }
+        }
+        
+        function logout() {
+            if (confirm('¿Está seguro de que desea cerrar sesión?')) {
+                localStorage.removeItem('inventario_session');
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // Verificar sesión inmediatamente
+        checkSession();
+        
+        // Configurar timer de inactividad
+        function setupInactivityTimer() {
+            let inactivityTimeout;
+            const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 minutos
+
+            function resetTimer() {
+                clearTimeout(inactivityTimeout);
+                inactivityTimeout = setTimeout(() => {
+                    if (confirm('Tu sesión ha expirado por inactividad. Por favor, inicia sesión nuevamente.')) {
+                        localStorage.removeItem('inventario_session');
+                        window.location.href = 'login.html';
+                    }
+                }, INACTIVITY_LIMIT);
+            }
+
+            // Eventos de actividad del usuario
+            ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'].forEach(event => {
+                document.addEventListener(event, resetTimer, true);
+            });
+
+            resetTimer(); // Iniciar el timer
+        }
+        
+        setupInactivityTimer();
+    </script>
+</body>
+</html>

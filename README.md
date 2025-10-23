@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# Control-Inventario-Basico
-HTML BASICO PARA CONTROL DE INVENTARIO, EN PEQUEÑAS TIENDAS LOCALES
-=======
 # 📦 Inventario Profesional - Versión Ultra Ligera
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -393,7 +389,7 @@ copies or substantial portions of the Software.
 ### 💬 Obtener Ayuda
 - 📖 **Documentación:** Revisa este README completo
 - 🐛 **Issues:** Abre un issue en GitHub
-- 📧 **Email:** [-]
+- 📧 **Email:** [tu-email@ejemplo.com]
 
 ### 🌐 Comunidad
 - ⭐ **Star** el repositorio si te gusta
@@ -405,4 +401,3 @@ copies or substantial portions of the Software.
 **🚀 Inventario Profesional - La solución perfecta para gestionar tu inventario de forma simple, segura y eficiente.**
 
 *Desarrollado con ❤️ por V3NUZ con asistencia de Claude AI Assistant*
->>>>>>> 42e62d703673b1be826a0a993eed9f3edab89482
