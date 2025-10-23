@@ -151,6 +151,15 @@
             border: 2px solid #7c3aed;
             background: #f3f4f6;
         }
+        
+        .assignment-checkbox {
+            transition: all 0.2s ease;
+        }
+        
+        .assignment-checkbox:checked {
+            background-color: #7c3aed;
+            border-color: #7c3aed;
+        }
     </style>
 </head>
 <body class="gradient-bg min-h-screen">
@@ -491,20 +500,15 @@
     
     <script>
         /**
-         * Sistema de Administración Multi-Tienda con Debug Avanzado
+         * Sistema de Administración Multi-Tienda Funcional
          * 
-         * Características principales:
-         * - Gestión completa de usuarios y tiendas
-         * - Asignación de empleados a tiendas
-         * - Panel de depuración funcional
-         * - Sincronización con Firebase
-         * - Herramientas de diagnóstico y reparación
-         * 
-         * @author V3NUZ (Desarrollador Principal)
-         * @assistant Claude AI Assistant (Asistencia de Desarrollo)
-         * @version 4.0 - Con Debug Avanzado
+         * Características:
+         * - Edición de usuarios completamente funcional
+         * - Asignación de empleados a tiendas con checkboxes
+         * - Gestión completa de tiendas
+         * - Debug avanzado
          */
-        
+
         class UserManager {
             constructor() {
                 this.users = [];
@@ -596,19 +600,59 @@
             // Cargar usuarios
             async loadUsers() {
                 try {
-                    if (this.firebaseReady) {
+                    // Primero cargar desde localStorage
+                    const localUsers = localStorage.getItem('inventario_users');
+                    if (localUsers) {
+                        this.users = JSON.parse(localUsers);
+                    }
+                    
+                    // Si no hay usuarios, crear los por defecto
+                    if (this.users.length === 0) {
+                        this.users = [
+                            {
+                                id: 'admin_default',
+                                name: 'Administrador',
+                                username: 'admin',
+                                password: 'admin123',
+                                role: 'admin',
+                                permissions: {
+                                    read: true,
+                                    write: true,
+                                    delete: true,
+                                    manage_users: true
+                                },
+                                createdAt: new Date().toISOString(),
+                                lastLogin: new Date().toISOString()
+                            },
+                            {
+                                id: 'employee_1',
+                                name: 'Vendedor 1',
+                                username: 'vendedor1',
+                                password: 'empleado',
+                                role: 'employee',
+                                permissions: {
+                                    read: true,
+                                    write: true,
+                                    delete: false,
+                                    manage_users: false
+                                },
+                                createdAt: new Date().toISOString(),
+                                lastLogin: null
+                            }
+                        ];
+                        await this.saveUsers();
+                    }
+                    
+                    // Si Firebase está disponible, sincronizar
+                    if (this.firebaseReady && window.database) {
                         const snapshot = await window.database.ref('users').once('value');
                         const data = snapshot.val();
                         if (data && data.data) {
                             this.users = data.data;
                             localStorage.setItem('inventario_users', JSON.stringify(this.users));
                         }
-                    } else {
-                        const localUsers = localStorage.getItem('inventario_users');
-                        if (localUsers) {
-                            this.users = JSON.parse(localUsers);
-                        }
                     }
+                    
                     this.logDebug('info', `📥 ${this.users.length} usuarios cargados`);
                 } catch (error) {
                     this.logDebug('error', `❌ Error cargando usuarios: ${error.message}`);
@@ -619,18 +663,10 @@
             // Cargar tiendas
             async loadStores() {
                 try {
-                    if (this.firebaseReady) {
-                        const snapshot = await window.database.ref('stores').once('value');
-                        const data = snapshot.val();
-                        if (data && data.data) {
-                            this.stores = data.data;
-                            localStorage.setItem('inventario_stores', JSON.stringify(this.stores));
-                        }
-                    } else {
-                        const localStores = localStorage.getItem('inventario_stores');
-                        if (localStores) {
-                            this.stores = JSON.parse(localStores);
-                        }
+                    // Primero cargar desde localStorage
+                    const localStores = localStorage.getItem('inventario_stores');
+                    if (localStores) {
+                        this.stores = JSON.parse(localStores);
                     }
                     
                     // Si no hay tiendas, crear las por defecto
@@ -660,6 +696,16 @@
                         await this.saveStores();
                     }
                     
+                    // Si Firebase está disponible, sincronizar
+                    if (this.firebaseReady && window.database) {
+                        const snapshot = await window.database.ref('stores').once('value');
+                        const data = snapshot.val();
+                        if (data && data.data) {
+                            this.stores = data.data;
+                            localStorage.setItem('inventario_stores', JSON.stringify(this.stores));
+                        }
+                    }
+                    
                     this.logDebug('info', `🏪 ${this.stores.length} tiendas cargadas`);
                 } catch (error) {
                     this.logDebug('error', `❌ Error cargando tiendas: ${error.message}`);
@@ -669,22 +715,29 @@
             // Cargar asignaciones
             async loadAssignments() {
                 try {
-                    if (this.firebaseReady) {
+                    let assignments = {};
+                    
+                    // Cargar desde localStorage
+                    const localAssignments = localStorage.getItem('inventario_assignments');
+                    if (localAssignments) {
+                        assignments = JSON.parse(localAssignments);
+                    }
+                    
+                    // Si Firebase está disponible, sincronizar
+                    if (this.firebaseReady && window.database) {
                         const snapshot = await window.database.ref('assignments').once('value');
                         const data = snapshot.val();
                         if (data && data.data) {
-                            this.assignments = data.data;
-                            localStorage.setItem('inventario_assignments', JSON.stringify(this.assignments));
-                        }
-                    } else {
-                        const localAssignments = localStorage.getItem('inventario_assignments');
-                        if (localAssignments) {
-                            this.assignments = JSON.parse(localAssignments);
+                            assignments = data.data;
+                            localStorage.setItem('inventario_assignments', JSON.stringify(assignments));
                         }
                     }
+                    
+                    this.assignments = assignments || {};
                     this.logDebug('info', `👥 ${Object.keys(this.assignments).length} asignaciones cargadas`);
                 } catch (error) {
                     this.logDebug('error', `❌ Error cargando asignaciones: ${error.message}`);
+                    this.assignments = {};
                 }
             }
 
@@ -700,23 +753,24 @@
                 if (localUsers) {
                     this.users = JSON.parse(localUsers);
                 }
-                // Crear admin por defecto si no hay usuarios
                 if (this.users.length === 0) {
-                    this.users = [{
-                        id: 'admin_default',
-                        name: 'Administrador',
-                        username: 'admin',
-                        password: 'admin123',
-                        role: 'admin',
-                        permissions: {
-                            read: true,
-                            write: true,
-                            delete: true,
-                            manage_users: true
-                        },
-                        createdAt: new Date().toISOString(),
-                        lastLogin: new Date().toISOString()
-                    }];
+                    this.users = [
+                        {
+                            id: 'admin_default',
+                            name: 'Administrador',
+                            username: 'admin',
+                            password: 'admin123',
+                            role: 'admin',
+                            permissions: {
+                                read: true,
+                                write: true,
+                                delete: true,
+                                manage_users: true
+                            },
+                            createdAt: new Date().toISOString(),
+                            lastLogin: new Date().toISOString()
+                        }
+                    ];
                     this.saveUsers();
                 }
             }
@@ -955,7 +1009,7 @@
                                 ${this.stores.map(store => `
                                     <label class="flex items-center">
                                         <input type="checkbox" 
-                                               class="mr-2 rounded text-purple-600"
+                                               class="assignment-checkbox mr-2 rounded text-purple-600"
                                                onchange="userManager.toggleAssignment('${employee.id}', '${store.id}', this.checked)"
                                                ${this.assignments[employee.id]?.includes(store.id) ? 'checked' : ''}>
                                         <span class="text-sm">${store.name}</span>
@@ -1015,7 +1069,6 @@
             renderRecentActivity() {
                 const recentActivity = document.getElementById('recentActivity');
                 
-                // Simular actividad reciente (en producción esto vendría de un log real)
                 const activities = [
                     { icon: 'fa-user-plus', text: 'Nuevo usuario registrado', time: 'Hace 2 horas', color: 'text-green-600' },
                     { icon: 'fa-store', text: 'Tienda actualizada', time: 'Hace 5 horas', color: 'text-blue-600' },

@@ -87,6 +87,18 @@
             overflow-y: auto;
         }
         
+        .stock-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .stock-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .stock-btn:active {
+            transform: scale(0.95);
+        }
+        
         .status-indicator {
             width: 8px;
             height: 8px;
@@ -325,15 +337,14 @@
     
     <script>
         /**
-         * Sistema de Inventario MultiTienda Mejorado
+         * Sistema de Inventario MultiTienda Funcional
          * 
          * Características:
-         * - Gestión multi-tienda con permisos
+         * - Botones + y - para ajustar stock
+         * - Inventarios separados por tienda
+         * - Asignación de empleados a tiendas
+         * - Gestión completa de usuarios
          * - Sincronización en tiempo real
-         * - Panel completo de productos
-         * - Importación/Exportación
-         * - Búsqueda y filtrado
-         * - Control de stock
          */
 
         class InventoryManager {
@@ -391,6 +402,40 @@
             // Cargar tiendas
             async loadStores() {
                 try {
+                    // Primero intentar cargar desde localStorage
+                    const localStores = localStorage.getItem('inventario_stores');
+                    if (localStores) {
+                        this.stores = JSON.parse(localStores);
+                    }
+                    
+                    // Si no hay tiendas, crear las por defecto
+                    if (this.stores.length === 0) {
+                        this.stores = [
+                            {
+                                id: 'store_1',
+                                name: 'La Estancia',
+                                address: 'Avenia Caracas 70A - 89',
+                                sector: 'Tienda sector Caracas',
+                                phone: '',
+                                products: 0,
+                                units: 0,
+                                needs: 0
+                            },
+                            {
+                                id: 'store_2',
+                                name: 'Animal World',
+                                address: 'Calle 58 #127-88',
+                                sector: 'Tienda del sector norte',
+                                phone: '',
+                                products: 0,
+                                units: 0,
+                                needs: 0
+                            }
+                        ];
+                        await this.saveStores();
+                    }
+                    
+                    // Si Firebase está disponible, sincronizar
                     if (window.firebaseReady && window.database) {
                         this.firebaseReady = true;
                         const snapshot = await window.database.ref('stores').once('value');
@@ -399,14 +444,11 @@
                             this.stores = data.data;
                             localStorage.setItem('inventario_stores', JSON.stringify(this.stores));
                         }
-                    } else {
-                        const localStores = localStorage.getItem('inventario_stores');
-                        if (localStores) {
-                            this.stores = JSON.parse(localStores);
-                        }
                     }
                     
-                    // Cargar tiendas por defecto si no hay
+                } catch (error) {
+                    console.error('Error cargando tiendas:', error);
+                    // Cargar tiendas por defecto si hay error
                     if (this.stores.length === 0) {
                         this.stores = [
                             {
@@ -431,30 +473,32 @@
                             }
                         ];
                     }
-                } catch (error) {
-                    console.error('Error cargando tiendas:', error);
                 }
             }
 
             // Cargar asignaciones
             async loadAssignments() {
                 try {
+                    let assignments = {};
+                    
+                    // Cargar desde localStorage
+                    const localAssignments = localStorage.getItem('inventario_assignments');
+                    if (localAssignments) {
+                        assignments = JSON.parse(localAssignments);
+                    }
+                    
+                    // Si Firebase está disponible, sincronizar
                     if (this.firebaseReady && window.database) {
                         const snapshot = await window.database.ref('assignments').once('value');
                         const data = snapshot.val();
                         if (data && data.data) {
-                            this.assignments = data.data;
-                        }
-                    } else {
-                        const localAssignments = localStorage.getItem('inventario_assignments');
-                        if (localAssignments) {
-                            this.assignments = JSON.parse(localAssignments);
+                            assignments = data.data;
+                            localStorage.setItem('inventario_assignments', JSON.stringify(assignments));
                         }
                     }
                     
-                    if (!this.assignments) {
-                        this.assignments = {};
-                    }
+                    this.assignments = assignments || {};
+                    
                 } catch (error) {
                     console.error('Error cargando asignaciones:', error);
                     this.assignments = {};
@@ -634,6 +678,18 @@
                 if (!this.selectedStore) return;
                 
                 try {
+                    // Primero intentar cargar desde localStorage
+                    const localProducts = localStorage.getItem(`products_${this.selectedStore.id}`);
+                    if (localProducts) {
+                        this.products = JSON.parse(localProducts);
+                    }
+                    
+                    // Si no hay productos, inicializar array vacío
+                    if (!this.products) {
+                        this.products = [];
+                    }
+                    
+                    // Si Firebase está disponible, sincronizar
                     if (this.firebaseReady && window.database) {
                         const snapshot = await window.database.ref(`products_${this.selectedStore.id}`).once('value');
                         const data = snapshot.val();
@@ -641,15 +697,6 @@
                             this.products = data.data;
                             localStorage.setItem(`products_${this.selectedStore.id}`, JSON.stringify(this.products));
                         }
-                    } else {
-                        const localProducts = localStorage.getItem(`products_${this.selectedStore.id}`);
-                        if (localProducts) {
-                            this.products = JSON.parse(localProducts);
-                        }
-                    }
-                    
-                    if (!this.products) {
-                        this.products = [];
                     }
                     
                     this.renderProducts();
@@ -694,7 +741,19 @@
                                 <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">${product.category || 'Sin categoría'}</span>
                             </td>
                             <td class="py-3 px-4 text-center">
-                                <span class="font-semibold ${stockStatus.color}">${product.stock}</span>
+                                <div class="flex items-center justify-center gap-2">
+                                    <button onclick="inventoryManager.adjustStock('${product.id}', -1)" 
+                                            class="stock-btn w-8 h-8 bg-red-500 text-white rounded-lg hover:bg-red-600 transition flex items-center justify-center"
+                                            title="Reducir stock">
+                                        <i class="fas fa-minus text-xs"></i>
+                                    </button>
+                                    <span class="font-semibold ${stockStatus.color} min-w-[3rem] text-center">${product.stock}</span>
+                                    <button onclick="inventoryManager.adjustStock('${product.id}', 1)" 
+                                            class="stock-btn w-8 h-8 bg-green-500 text-white rounded-lg hover:bg-green-600 transition flex items-center justify-center"
+                                            title="Aumentar stock">
+                                        <i class="fas fa-plus text-xs"></i>
+                                    </button>
+                                </div>
                             </td>
                             <td class="py-3 px-4 text-right">
                                 $${product.price.toFixed(2)}
@@ -722,6 +781,26 @@
                         </tr>
                     `;
                 }).join('');
+            }
+
+            // Ajustar stock con botones + y -
+            async adjustStock(productId, change) {
+                const product = this.products.find(p => p.id === productId);
+                if (!product) return;
+                
+                const newStock = Math.max(0, product.stock + change);
+                
+                if (newStock !== product.stock) {
+                    product.stock = newStock;
+                    product.updatedAt = new Date().toISOString();
+                    
+                    await this.saveProducts();
+                    this.renderProducts();
+                    this.updateStats();
+                    
+                    const action = change > 0 ? 'aumentado' : 'reducido';
+                    this.showNotification(`Stock ${action}: ${product.name} (${change > 0 ? '+' : ''}${change})`);
+                }
             }
 
             // Obtener estado del stock
@@ -835,7 +914,19 @@
                                 <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">${product.category || 'Sin categoría'}</span>
                             </td>
                             <td class="py-3 px-4 text-center">
-                                <span class="font-semibold ${stockStatus.color}">${product.stock}</span>
+                                <div class="flex items-center justify-center gap-2">
+                                    <button onclick="inventoryManager.adjustStock('${product.id}', -1)" 
+                                            class="stock-btn w-8 h-8 bg-red-500 text-white rounded-lg hover:bg-red-600 transition flex items-center justify-center"
+                                            title="Reducir stock">
+                                        <i class="fas fa-minus text-xs"></i>
+                                    </button>
+                                    <span class="font-semibold ${stockStatus.color} min-w-[3rem] text-center">${product.stock}</span>
+                                    <button onclick="inventoryManager.adjustStock('${product.id}', 1)" 
+                                            class="stock-btn w-8 h-8 bg-green-500 text-white rounded-lg hover:bg-green-600 transition flex items-center justify-center"
+                                            title="Aumentar stock">
+                                        <i class="fas fa-plus text-xs"></i>
+                                    </button>
+                                </div>
                             </td>
                             <td class="py-3 px-4 text-right">
                                 $${product.price.toFixed(2)}
