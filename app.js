@@ -1,40 +1,120 @@
 /**
- * Inventario Profesional - Motor Principal
+ * Inventario Profesional - Motor Principal MultiTienda
  * 
  * Este sistema gestiona:
- * - Operaciones CRUD de productos
+ * - Operaciones CRUD de productos por tienda
  * - Control de stock con ajustes rápidos (+/-)
  * - Sistema de alertas automáticas (NECESITAMOS)
  * - Búsqueda y filtrado avanzado
- * - Importación/Exportación de datos
- * - Persistencia local con localStorage
+ * - Importación/Exportación de datos por tienda
+ * - Persistencia local con localStorage por tienda
  * 
  * Características principales:
  * - Ultra optimizado para rendimiento
  * - Diseño responsive y accesible
  * - Control de permisos integrado
  * - Validación de datos robusta
+ * - Soporte multi-tienda
  * 
  * @author V3NUZ (Desarrollador Principal)
  * @assistant Claude AI Assistant (Asistencia de Desarrollo)
- * @version 2.0 con Sistema de Login
+ * @version 3.0 MultiTienda
  * @license MIT
  */
 
 class InventoryManager {
     constructor() {
         this.products = [];
+        this.currentStore = null;
         this.editingProduct = null;
         this.init();
     }
 
     init() {
+        this.checkStoreSelection();
         this.loadFromStorage();
         this.setupEventListeners();
         this.updateStats();
         this.renderProducts();
         this.updateCategoryFilter();
-        console.log('Inventario cargado -', this.products.length, 'productos');
+        this.updateStoreInfo();
+        console.log('Inventario cargado -', this.products.length, 'productos para tienda:', this.currentStore?.name);
+    }
+
+    checkStoreSelection() {
+        // Verificar si hay una tienda seleccionada
+        const urlParams = new URLSearchParams(window.location.search);
+        const storeParam = urlParams.get('store');
+        const selectedStore = localStorage.getItem('selected_store');
+        
+        // Si viene por parámetro URL, usarlo y guardarlo
+        if (storeParam) {
+            localStorage.setItem('selected_store', storeParam);
+            this.currentStore = this.getStoreInfo(storeParam);
+            return;
+        }
+        
+        // Si no hay tienda seleccionada, redirigir al selector
+        if (!selectedStore) {
+            window.location.href = 'tienda-selector.html';
+            return;
+        }
+        
+        this.currentStore = this.getStoreInfo(selectedStore);
+    }
+    
+    getStoreInfo(storeId) {
+        const stores = {
+            'la-estancia': {
+                id: 'la-estancia',
+                name: 'La Estancia',
+                location: 'Tienda principal de productos para el hogar',
+                icon: 'fas fa-home',
+                color: '#10b981'
+            },
+            'animal-world': {
+                id: 'animal-world',
+                name: 'Animal World',
+                location: 'Tienda especializada en productos para mascotas',
+                icon: 'fas fa-paw',
+                color: '#f97316'
+            }
+        };
+        
+        return stores[storeId] || stores['la-estancia'];
+    }
+
+    initConsolidatedView() {
+        // Lógica especial para vista consolidada
+        this.isConsolidated = true;
+        localStorage.removeItem('consolidated_view');
+    }
+
+    loadFromStorage() {
+        try {
+            let storageKey = `inventory_products_${this.currentStore.id}`;
+            
+            const stored = localStorage.getItem(storageKey);
+            if (stored) {
+                this.products = JSON.parse(stored);
+            } else {
+                this.products = this.getDefaultProducts();
+                this.saveToStorage();
+            }
+        } catch (error) {
+            console.error('Error cargando datos:', error);
+            this.products = this.getDefaultProducts();
+            this.saveToStorage();
+        }
+    }
+
+    saveToStorage() {
+        try {
+            let storageKey = `inventory_products_${this.currentStore.id}`;
+            localStorage.setItem(storageKey, JSON.stringify(this.products));
+        } catch (error) {
+            console.error('Error guardando datos:', error);
+        }
     }
 
     setupEventListeners() {
@@ -75,62 +155,104 @@ class InventoryManager {
                 this.handleFileImport(e);
             });
         }
-    }
 
-    loadFromStorage() {
-        try {
-            const stored = localStorage.getItem('inventory_products');
-            if (stored) {
-                this.products = JSON.parse(stored);
-            } else {
-                this.products = this.getDefaultProducts();
-                this.saveToStorage();
-            }
-        } catch (error) {
-            console.error('Error cargando datos:', error);
-            this.products = this.getDefaultProducts();
-            this.saveToStorage();
+        // Botón de cambiar de tienda
+        const changeStoreBtn = document.getElementById('changeStoreBtn');
+        if (changeStoreBtn) {
+            changeStoreBtn.addEventListener('click', () => {
+                localStorage.removeItem('selected_store');
+                window.location.href = 'tienda-selector.html';
+            });
         }
     }
 
-    saveToStorage() {
-        try {
-            localStorage.setItem('inventory_products', JSON.stringify(this.products));
-        } catch (error) {
-            console.error('Error guardando datos:', error);
+    updateStoreInfo() {
+        if (!this.currentStore) return;
+
+        // Actualizar información de la tienda en la interfaz
+        const storeNameElement = document.getElementById('storeName');
+        const storeLocationElement = document.getElementById('storeLocation');
+        const storeColorElement = document.getElementById('storeColor');
+
+        if (storeNameElement) {
+            storeNameElement.textContent = this.currentStore.name;
         }
+        if (storeLocationElement) {
+            storeLocationElement.textContent = this.currentStore.location;
+        }
+        if (storeColorElement && this.currentStore.color) {
+            storeColorElement.style.backgroundColor = this.currentStore.color;
+        }
+
+        // Actualizar título de la página
+        document.title = `${this.currentStore.name} - Inventario Profesional`;
     }
 
     getDefaultProducts() {
-        return [
-            {
-                id: 1,
-                name: 'Laptop Dell XPS',
-                category: 'Electrónicos',
-                quantity: 5,
-                price: 1200,
-                notes: 'Laptops de alto rendimiento',
-                createdAt: new Date().toISOString()
-            },
-            {
-                id: 2,
-                name: 'Mouse Inalámbrico',
-                category: 'Accesorios',
-                quantity: 0,
-                price: 25,
-                notes: 'Mouse USB recargable',
-                createdAt: new Date().toISOString()
-            },
-            {
-                id: 3,
-                name: 'Silla Ergonómica',
-                category: 'Mobiliario',
-                quantity: 2,
-                price: 350,
-                notes: 'Silla de oficina con soporte lumbar',
-                createdAt: new Date().toISOString()
-            }
-        ];
+        // Productos diferentes según la tienda
+        if (this.currentStore.id === 'la-estancia') {
+            return [
+                {
+                    id: 1,
+                    name: 'Juego de Sillones',
+                    category: 'Sala',
+                    quantity: 3,
+                    price: 899.99,
+                    notes: 'Sillones de cuero premium',
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: 2,
+                    name: 'Mesa de Comedor',
+                    category: 'Comedor',
+                    quantity: 0,
+                    price: 599.99,
+                    notes: 'Mesa extensible para 8 personas',
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: 3,
+                    name: 'Lámpara de Pie',
+                    category: 'Iluminación',
+                    quantity: 7,
+                    price: 89.99,
+                    notes: 'Lámpara LED regulable',
+                    createdAt: new Date().toISOString()
+                }
+            ];
+        } else if (this.currentStore.id === 'animal-world') {
+            return [
+                {
+                    id: 1,
+                    name: 'Alimento Premium Perros',
+                    category: 'Alimentos',
+                    quantity: 15,
+                    price: 45.99,
+                    notes: 'Bolsa 15kg sabor pollo',
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: 2,
+                    name: 'Juguete Interactivo Gatos',
+                    category: 'Juguetes',
+                    quantity: 0,
+                    price: 12.99,
+                    notes: 'Juguete con plumas y sonido',
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: 3,
+                    name: 'Cama Ortopédica Grande',
+                    category: 'Accesorios',
+                    quantity: 4,
+                    price: 79.99,
+                    notes: 'Para perros grandes',
+                    createdAt: new Date().toISOString()
+                }
+            ];
+        }
+        
+        return [];
     }
 
     saveProduct() {

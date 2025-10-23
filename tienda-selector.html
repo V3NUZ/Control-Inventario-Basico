@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selector de Tienda - Inventario Profesional</title>
+    <!--
+        Inventario Profesional - Versión MultiTienda
+        Sistema de Gestión de Inventario con Control de Acceso
+        
+        Desarrollado por: V3NUZ
+        Asistencia de Desarrollo: Claude AI Assistant
+        Versión: 3.0 MultiTienda
+        Licencia: MIT License
+        
+        Características principales:
+        - Gestión multi-tienda
+        - Selección de tienda al iniciar
+        - Inventario separado por tienda
+        - Dashboard consolidado
+        - Diseño responsive y moderno
+    -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .store-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .store-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+        
+        .store-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto p-4">
+        <!-- Header -->
+        <header class="text-center mb-8 fade-in">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full shadow-lg mb-4">
+                <i class="fas fa-store text-3xl text-purple-600"></i>
+            </div>
+            <h1 class="text-4xl font-bold text-white mb-2">Inventario MultiTienda</h1>
+            <p class="text-purple-100">Selecciona la tienda que deseas gestionar</p>
+        </header>
+
+        <!-- Usuario Actual -->
+        <div class="text-center mb-6 fade-in">
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full">
+                <i class="fas fa-user-circle text-white"></i>
+                <span id="currentUser" class="text-white font-medium"></span>
+            </div>
+        </div>
+
+        <!-- Tiendas Disponibles -->
+        <div class="max-w-6xl mx-auto">
+            <div id="storesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Las tarjetas de tiendas se cargarán aquí -->
+            </div>
+
+            <!-- Botón de Gestión Consolidada -->
+            <div class="text-center mb-8 fade-in">
+                <button onclick="openConsolidatedView()" class="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                    <i class="fas fa-chart-line mr-2"></i>
+                    Vista Consolidada de Todas las Tiendas
+                </button>
+            </div>
+
+            <!-- Botón de Administración de Tiendas -->
+            <div class="text-center fade-in">
+                <button onclick="openStoreManagement()" class="px-6 py-3 bg-white/20 text-white rounded-lg font-medium hover:bg-white/30 transition-all duration-300">
+                    <i class="fas fa-cog mr-2"></i>
+                    Administrar Tiendas
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal de Gestión de Tiendas -->
+        <div id="storeManagementModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+            <div class="glass-effect rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Gestionar Tiendas</h2>
+                    <button onclick="closeStoreManagement()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="storeForm" class="space-y-4 mb-6">
+                    <input type="hidden" id="storeId">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre de la Tienda *</label>
+                            <input type="text" id="storeName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Ubicación *</label>
+                            <input type="text" id="storeLocation" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Color Identificador</label>
+                        <input type="color" id="storeColor" value="#667eea" class="w-full h-10 rounded-lg cursor-pointer">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Descripción (opcional)</label>
+                        <textarea id="storeDescription" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"></textarea>
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button type="submit" class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                            <i class="fas fa-save mr-2"></i>Guardar Tienda
+                        </button>
+                        <button type="button" onclick="closeStoreManagement()" class="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Lista de Tiendas Existentes -->
+                <div class="border-t pt-4">
+                    <h3 class="font-semibold text-gray-800 mb-3">Tiendas Existentes</h3>
+                    <div id="storesList" class="space-y-2">
+                        <!-- Lista de tiendas se cargará aquí -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notificación -->
+        <div id="notification" class="fixed top-4 right-4 bg-white px-6 py-4 rounded-lg shadow-lg border-l-4 border-green-500 hidden z-50">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                <span id="notificationText"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Sistema MultiTienda - Selector y Gestión
+         * 
+         * Este sistema maneja:
+         * - Selección de tienda para trabajar
+         - Gestión de múltiples tiendas
+         - Vista consolidada de inventario
+         - Configuración de tiendas
+         * 
+         * @author V3NUZ (Desarrollador Principal)
+         * @assistant Claude AI Assistant (Asistencia de Desarrollo)
+         * @version 3.0 MultiTienda
+         * @license MIT
+         */
+        
+        class MultiStoreManager {
+            constructor() {
+                this.stores = [];
+                this.currentUser = null;
+                this.selectedStore = null;
+                this.init();
+            }
+
+            init() {
+                this.checkAuthentication();
+                this.loadStores();
+                this.loadCurrentUser();
+                this.setupEventListeners();
+                this.renderStores();
+            }
+
+            checkAuthentication() {
+                const session = localStorage.getItem('inventario_session');
+                if (!session) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                const sessionData = JSON.parse(session);
+                const expiresAt = new Date(sessionData.expiresAt);
+                
+                if (expiresAt <= new Date()) {
+                    localStorage.removeItem('inventario_session');
+                    window.location.href = 'login.html';
+                    return;
+                }
+            }
+
+            loadCurrentUser() {
+                const session = localStorage.getItem('inventario_session');
+                if (session) {
+                    const sessionData = JSON.parse(session);
+                    this.currentUser = sessionData.user;
+                    document.getElementById('currentUser').textContent = sessionData.user.name;
+                }
+            }
+
+            loadStores() {
+                try {
+                    const stored = localStorage.getItem('multistore_stores');
+                    if (stored) {
+                        this.stores = JSON.parse(stored);
+                    } else {
+                        // Crear tiendas por defecto
+                        this.stores = this.getDefaultStores();
+                        this.saveStores();
+                    }
+                } catch (error) {
+                    console.error('Error cargando tiendas:', error);
+                    this.stores = this.getDefaultStores();
+                    this.saveStores();
+                }
+            }
+
+            getDefaultStores() {
+                return [
+                    {
+                        id: 1,
+                        name: 'Tienda Principal - Centro',
+                        location: 'Centro Comercial Plaza',
+                        color: '#667eea',
+                        description: 'Tienda principal con mayor inventario',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 2,
+                        name: 'Tienda Secundaria - Norte',
+                        location: 'Avenida Principal #123',
+                        color: '#f59e0b',
+                        description: 'Tienda del sector norte',
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+            }
+
+            saveStores() {
+                try {
+                    localStorage.setItem('multistore_stores', JSON.stringify(this.stores));
+                } catch (error) {
+                    console.error('Error guardando tiendas:', error);
+                }
+            }
+
+            setupEventListeners() {
+                const form = document.getElementById('storeForm');
+                if (form) {
+                    form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.saveStore();
+                    });
+                }
+
+                // Cerrar modal con ESC
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.closeStoreManagement();
+                    }
+                });
+            }
+
+            renderStores() {
+                const container = document.getElementById('storesContainer');
+                if (!container) return;
+
+                if (this.stores.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-span-full text-center py-12">
+                            <i class="fas fa-store-slash text-6xl text-white/50 mb-4"></i>
+                            <h3 class="text-xl font-semibold text-white mb-2">No hay tiendas configuradas</h3>
+                            <p class="text-white/75 mb-4">Crea tu primera tienda para comenzar</p>
+                            <button onclick="openStoreManagement()" class="px-6 py-3 bg-white text-purple-600 rounded-lg font-medium hover:bg-gray-100 transition">
+                                <i class="fas fa-plus mr-2"></i>Crear Primera Tienda
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.stores.map(store => {
+                    const stats = this.getStoreStats(store.id);
+                    return `
+                        <div class="store-card glass-effect rounded-xl p-6 fade-in" onclick="selectStore(${store.id})">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: ${store.color}">
+                                    <i class="fas fa-store text-white text-xl"></i>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                                    <i class="fas fa-check text-white text-xs"></i>
+                                </div>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">${this.escapeHtml(store.name)}</h3>
+                            <p class="text-gray-600 mb-4">
+                                <i class="fas fa-map-marker-alt mr-1"></i>
+                                ${this.escapeHtml(store.location)}
+                            </p>
+                            
+                            ${store.description ? `<p class="text-sm text-gray-500 mb-4">${this.escapeHtml(store.description)}</p>` : ''}
+                            
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="text-2xl font-bold" style="color: ${store.color}">${stats.products}</div>
+                                    <div class="text-xs text-gray-600">Productos</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="text-2xl font-bold text-green-600">${stats.stock}</div>
+                                    <div class="text-xs text-gray-600">Unidades</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="text-2xl font-bold text-red-600">${stats.needed}</div>
+                                    <div class="text-xs text-gray-600">Necesitan</div>
+                                </div>
+                            </div>
+                            
+                            <button class="w-full mt-4 px-4 py-2 text-white rounded-lg font-medium transition hover:opacity-90" style="background-color: ${store.color}">
+                                <i class="fas fa-arrow-right mr-2"></i>Gestionar Inventario
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            getStoreStats(storeId) {
+                try {
+                    const products = JSON.parse(localStorage.getItem(`inventory_products_store_${storeId}`) || '[]');
+                    return {
+                        products: products.length,
+                        stock: products.reduce((sum, p) => sum + p.quantity, 0),
+                        needed: products.filter(p => p.quantity === 0).length
+                    };
+                } catch (error) {
+                    return { products: 0, stock: 0, needed: 0 };
+                }
+            }
+
+            selectStore(storeId) {
+                const store = this.stores.find(s => s.id === storeId);
+                if (!store) return;
+
+                // Guardar tienda seleccionada
+                localStorage.setItem('selected_store', JSON.stringify(store));
+                
+                // Redirigir al inventario
+                window.location.href = 'index.html';
+            }
+
+            saveStore() {
+                const name = document.getElementById('storeName').value.trim();
+                const location = document.getElementById('storeLocation').value.trim();
+                const color = document.getElementById('storeColor').value;
+                const description = document.getElementById('storeDescription').value.trim();
+                const storeId = document.getElementById('storeId').value;
+
+                if (!name || !location) {
+                    this.showNotification('Por favor completa los campos obligatorios', 'error');
+                    return;
+                }
+
+                if (storeId) {
+                    // Editar tienda existente
+                    const index = this.stores.findIndex(s => s.id === parseInt(storeId));
+                    if (index !== -1) {
+                        this.stores[index] = {
+                            ...this.stores[index],
+                            name,
+                            location,
+                            color,
+                            description,
+                            updatedAt: new Date().toISOString()
+                        };
+                    }
+                } else {
+                    // Crear nueva tienda
+                    const newStore = {
+                        id: Date.now(),
+                        name,
+                        location,
+                        color,
+                        description,
+                        createdAt: new Date().toISOString()
+                    };
+                    this.stores.push(newStore);
+                }
+
+                this.saveStores();
+                this.renderStores();
+                this.closeStoreManagement();
+                this.showNotification(storeId ? 'Tienda actualizada' : 'Tienda creada', 'success');
+            }
+
+            deleteStore(storeId) {
+                const store = this.stores.find(s => s.id === storeId);
+                if (!store) return;
+
+                if (confirm(`¿Estás seguro de que quieres eliminar la tienda "${store.name}"? También se eliminará todo su inventario.`)) {
+                    // Eliminar inventario de la tienda
+                    localStorage.removeItem(`inventory_products_store_${storeId}`);
+                    
+                    // Eliminar tienda
+                    this.stores = this.stores.filter(s => s.id !== storeId);
+                    this.saveStores();
+                    this.renderStores();
+                    this.renderStoresList();
+                    this.showNotification('Tienda eliminada', 'success');
+                }
+            }
+
+            editStore(storeId) {
+                const store = this.stores.find(s => s.id === storeId);
+                if (!store) return;
+
+                document.getElementById('storeId').value = store.id;
+                document.getElementById('storeName').value = store.name;
+                document.getElementById('storeLocation').value = store.location;
+                document.getElementById('storeColor').value = store.color;
+                document.getElementById('storeDescription').value = store.description || '';
+
+                this.openStoreManagement();
+            }
+
+            openStoreManagement() {
+                document.getElementById('storeManagementModal').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                this.renderStoresList();
+            }
+
+            closeStoreManagement() {
+                document.getElementById('storeManagementModal').style.display = 'none';
+                document.body.style.overflow = 'auto';
+                this.resetStoreForm();
+            }
+
+            resetStoreForm() {
+                document.getElementById('storeForm').reset();
+                document.getElementById('storeId').value = '';
+            }
+
+            renderStoresList() {
+                const container = document.getElementById('storesList');
+                if (!container) return;
+
+                container.innerHTML = this.stores.map(store => `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: ${store.color}">
+                                <i class="fas fa-store text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-gray-800">${this.escapeHtml(store.name)}</div>
+                                <div class="text-sm text-gray-600">${this.escapeHtml(store.location)}</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="multiStoreManager.editStore(${store.id})" class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="multiStoreManager.deleteStore(${store.id})" class="p-2 text-red-600 hover:bg-red-100 rounded-lg transition">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            openConsolidatedView() {
+                // Redirigir a vista consolidada
+                localStorage.setItem('consolidated_view', 'true');
+                window.location.href = 'consolidated.html';
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.getElementById('notification');
+                const notificationText = document.getElementById('notificationText');
+                
+                if (!notification || !notificationText) return;
+                
+                notificationText.textContent = message;
+                notification.className = `fixed top-4 right-4 bg-white px-6 py-4 rounded-lg shadow-lg border-l-4 z-50`;
+                
+                if (type === 'error') {
+                    notification.classList.add('border-red-500');
+                    notification.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-circle text-red-500 mr-3"></i>
+                            <span>${message}</span>
+                        </div>
+                    `;
+                } else {
+                    notification.classList.add('border-green-500');
+                    notification.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span>${message}</span>
+                        </div>
+                    `;
+                }
+                
+                notification.style.display = 'block';
+                
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+
+        // Funciones globales
+        function selectStore(storeId) {
+            multiStoreManager.selectStore(storeId);
+        }
+
+        function openStoreManagement() {
+            multiStoreManager.openStoreManagement();
+        }
+
+        function closeStoreManagement() {
+            multiStoreManager.closeStoreManagement();
+        }
+
+        function openConsolidatedView() {
+            multiStoreManager.openConsolidatedView();
+        }
+
+        // Inicializar
+        let multiStoreManager;
+        document.addEventListener('DOMContentLoaded', () => {
+            multiStoreManager = new MultiStoreManager();
+        });
+    </script>
+</body>
+</html>

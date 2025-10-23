@@ -435,10 +435,10 @@
         <!-- Header -->
         <header class="header">
             <div class="logo">
-                <div class="logo-icon">📦</div>
+                <div class="logo-icon" id="storeColor">📦</div>
                 <div>
-                    <h1>Inventario Profesional</h1>
-                    <p style="font-size: 0.9em; color: #666;">Control de productos</p>
+                    <h1 id="storeName">Inventario Profesional</h1>
+                    <p style="font-size: 0.9em; color: #666;" id="storeLocation">Control de productos</p>
                 </div>
             </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
@@ -446,6 +446,12 @@
                     <i class="fas fa-user-circle" style="color: #667eea;"></i>
                     <span id="userInfo" style="font-size: 0.9em; font-weight: 500;"></span>
                 </div>
+                <button class="btn-secondary" onclick="window.location.href='tienda-selector.html'" id="changeStoreBtn" style="padding: 8px 16px; font-size: 0.9em; background: #8b5cf6;">
+                    <i class="fas fa-store mr-2"></i>Cambiar Tienda
+                </button>
+                <button class="btn-secondary" onclick="window.location.href='consolidated.html'" style="padding: 8px 16px; font-size: 0.9em; background: #10b981;">
+                    <i class="fas fa-chart-line mr-2"></i>Vista Consolidada
+                </button>
                 <button class="btn-secondary" onclick="window.location.href='admin.html'" id="adminBtn" style="padding: 8px 16px; font-size: 0.9em; background: #8b5cf6;">👥 Administración</button>
                 <button class="btn-secondary" onclick="exportData()" style="padding: 8px 16px; font-size: 0.9em;">📥 Exportar</button>
                 <button class="btn-secondary" onclick="importData()" style="padding: 8px 16px; font-size: 0.9em;">📤 Importar</button>

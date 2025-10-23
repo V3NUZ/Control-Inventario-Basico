@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Consolidado - Inventario MultiTienda</title>
+    <!--
+        Inventario Profesional - Dashboard MultiTienda
+        Sistema de Gestión de Inventario con Control de Acceso
+        
+        Desarrollado por: V3NUZ
+        Asistencia de Desarrollo: Claude AI Assistant
+        Versión: 3.0 MultiTienda
+        Licencia: MIT License
+    -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .store-card {
+            transition: all 0.3s ease;
+        }
+        
+        .store-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div class="container mx-auto p-4">
+        <!-- Header -->
+        <header class="glass-effect rounded-2xl shadow-xl p-6 mb-6 fade-in">
+            <div class="flex justify-between items-center flex-wrap gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center">
+                        <i class="fas fa-chart-line text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">Dashboard Consolidado</h1>
+                        <p class="text-gray-600">Vista general de todas las tiendas</p>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="goToStoreSelector()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
+                        <i class="fas fa-store mr-2"></i>Seleccionar Tienda
+                    </button>
+                    <button onclick="logout()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Cerrar Sesión
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- User Info -->
+        <div class="text-center mb-6 fade-in">
+            <div class="inline-flex items-center gap-3 px-6 py-3 bg-white/20 backdrop-blur rounded-full">
+                <i class="fas fa-user-circle text-white text-xl"></i>
+                <span id="userInfo" class="text-white font-medium"></span>
+            </div>
+        </div>
+
+        <!-- Global Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="glass-effect rounded-xl p-6 text-center fade-in">
+                <div class="text-3xl font-bold text-purple-600" id="totalStores">2</div>
+                <div class="text-gray-600">Tiendas</div>
+            </div>
+            <div class="glass-effect rounded-xl p-6 text-center fade-in">
+                <div class="text-3xl font-bold text-blue-600" id="totalProducts">0</div>
+                <div class="text-gray-600">Total Productos</div>
+            </div>
+            <div class="glass-effect rounded-xl p-6 text-center fade-in">
+                <div class="text-3xl font-bold text-green-600" id="totalStock">0</div>
+                <div class="text-gray-600">Total Unidades</div>
+            </div>
+            <div class="glass-effect rounded-xl p-6 text-center fade-in">
+                <div class="text-3xl font-bold text-red-600" id="totalNeeded">0</div>
+                <div class="text-gray-600">Productos Necesitan</div>
+            </div>
+        </div>
+
+        <!-- Store Cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- La Estancia -->
+            <div class="store-card glass-effect rounded-2xl shadow-xl p-6 fade-in">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-home text-green-600"></i>
+                            La Estancia
+                        </h2>
+                        <p class="text-gray-600">Productos para el hogar</p>
+                    </div>
+                    <button onclick="goToStore('la-estancia')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                        <i class="fas fa-arrow-right mr-2"></i>Gestionar
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-600" id="la-estancia-products">0</div>
+                        <div class="text-sm text-gray-600">Productos</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-600" id="la-estancia-stock">0</div>
+                        <div class="text-sm text-gray-600">Unidades</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-red-600" id="la-estancia-needed">0</div>
+                        <div class="text-sm text-gray-600">Necesitan</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="la-estancia-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Animal World -->
+            <div class="store-card glass-effect rounded-2xl shadow-xl p-6 fade-in">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-paw text-orange-600"></i>
+                            Animal World
+                        </h2>
+                        <p class="text-gray-600">Productos para mascotas</p>
+                    </div>
+                    <button onclick="goToStore('animal-world')" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition">
+                        <i class="fas fa-arrow-right mr-2"></i>Gestionar
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-orange-600" id="animal-world-products">0</div>
+                        <div class="text-sm text-gray-600">Productos</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-600" id="animal-world-stock">0</div>
+                        <div class="text-sm text-gray-600">Unidades</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-red-600" id="animal-world-needed">0</div>
+                        <div class="text-sm text-gray-600">Necesitan</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="animal-world-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Chart -->
+        <div class="glass-effect rounded-2xl shadow-xl p-6 fade-in">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Comparación de Tiendas</h2>
+            <div class="chart-container" style="height: 400px;">
+                <canvas id="comparison-chart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Dashboard MultiTienda
+         * 
+         * @author V3NUZ (Desarrollador Principal)
+         * @assistant Claude AI Assistant (Asistencia de Desarrollo)
+         * @version 3.0 MultiTienda
+         * @license MIT
+         */
+        
+        class MultiStoreDashboard {
+            constructor() {
+                this.stores = {
+                    'la-estancia': {
+                        name: 'La Estancia',
+                        color: 'rgb(34, 197, 94)',
+                        bgColor: 'rgba(34, 197, 94, 0.2)'
+                    },
+                    'animal-world': {
+                        name: 'Animal World',
+                        color: 'rgb(251, 146, 60)',
+                        bgColor: 'rgba(251, 146, 60, 0.2)'
+                    }
+                };
+                
+                this.charts = {};
+                this.init();
+            }
+            
+            init() {
+                this.checkSession();
+                this.updateUserInfo();
+                this.loadAllStoreData();
+                this.createCharts();
+            }
+            
+            checkSession() {
+                const session = localStorage.getItem('inventario_session');
+                if (!session) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                const sessionData = JSON.parse(session);
+                const expiresAt = new Date(sessionData.expiresAt);
+                
+                if (expiresAt <= new Date()) {
+                    localStorage.removeItem('inventario_session');
+                    window.location.href = 'login.html';
+                    return;
+                }
+            }
+            
+            updateUserInfo() {
+                const session = localStorage.getItem('inventario_session');
+                if (session) {
+                    const sessionData = JSON.parse(session);
+                    const userInfo = document.getElementById('userInfo');
+                    if (userInfo) {
+                        userInfo.textContent = sessionData.user.name;
+                    }
+                }
+            }
+            
+            loadAllStoreData() {
+                let totalProducts = 0;
+                let totalStock = 0;
+                let totalNeeded = 0;
+                
+                Object.keys(this.stores).forEach(storeId => {
+                    const stats = this.getStoreStats(storeId);
+                    this.updateStoreDisplay(storeId, stats);
+                    
+                    totalProducts += stats.products;
+                    totalStock += stats.totalStock;
+                    totalNeeded += stats.needed;
+                });
+                
+                // Update global stats
+                document.getElementById('totalProducts').textContent = totalProducts;
+                document.getElementById('totalStock').textContent = totalStock;
+                document.getElementById('totalNeeded').textContent = totalNeeded;
+            }
+            
+            getStoreStats(storeId) {
+                const productsKey = `inventory_products_${storeId}`;
+                const stored = localStorage.getItem(productsKey);
+                
+                if (!stored) {
+                    return {
+                        products: 0,
+                        totalStock: 0,
+                        needed: 0,
+                        categories: {},
+                        stockStatus: { available: 0, low: 0, zero: 0 }
+                    };
+                }
+                
+                const products = JSON.parse(stored);
+                const totalStock = products.reduce((sum, p) => sum + p.quantity, 0);
+                const needed = products.filter(p => p.quantity === 0).length;
+                
+                // Category breakdown
+                const categories = {};
+                products.forEach(p => {
+                    if (!categories[p.category]) {
+                        categories[p.category] = 0;
+                    }
+                    categories[p.category] += p.quantity;
+                });
+                
+                // Stock status
+                const stockStatus = {
+                    available: products.filter(p => p.quantity > 5).length,
+                    low: products.filter(p => p.quantity > 0 && p.quantity <= 5).length,
+                    zero: products.filter(p => p.quantity === 0).length
+                };
+                
+                return {
+                    products: products.length,
+                    totalStock,
+                    needed,
+                    categories,
+                    stockStatus
+                };
+            }
+            
+            updateStoreDisplay(storeId, stats) {
+                document.getElementById(`${storeId}-products`).textContent = stats.products;
+                document.getElementById(`${storeId}-stock`).textContent = stats.totalStock;
+                document.getElementById(`${storeId}-needed`).textContent = stats.needed;
+                
+                // Update store chart
+                this.updateStoreChart(storeId, stats);
+            }
+            
+            createCharts() {
+                // Create individual store charts
+                Object.keys(this.stores).forEach(storeId => {
+                    this.createStoreChart(storeId);
+                });
+                
+                // Create comparison chart
+                this.createComparisonChart();
+            }
+            
+            createStoreChart(storeId) {
+                const ctx = document.getElementById(`${storeId}-chart`).getContext('2d');
+                const stats = this.getStoreStats(storeId);
+                
+                this.charts[storeId] = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Disponible', 'Bajo', 'Agotado'],
+                        datasets: [{
+                            data: [
+                                stats.stockStatus.available,
+                                stats.stockStatus.low,
+                                stats.stockStatus.zero
+                            ],
+                            backgroundColor: [
+                                'rgba(34, 197, 94, 0.8)',
+                                'rgba(251, 191, 36, 0.8)',
+                                'rgba(239, 68, 68, 0.8)'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 10,
+                                    font: {
+                                        size: 11
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            updateStoreChart(storeId, stats) {
+                if (this.charts[storeId]) {
+                    this.charts[storeId].data.datasets[0].data = [
+                        stats.stockStatus.available,
+                        stats.stockStatus.low,
+                        stats.stockStatus.zero
+                    ];
+                    this.charts[storeId].update();
+                }
+            }
+            
+            createComparisonChart() {
+                const ctx = document.getElementById('comparison-chart').getContext('2d');
+                
+                const storeData = Object.keys(this.stores).map(storeId => {
+                    const stats = this.getStoreStats(storeId);
+                    return {
+                        name: this.stores[storeId].name,
+                        products: stats.products,
+                        stock: stats.totalStock,
+                        needed: stats.needed
+                    };
+                });
+                
+                this.charts.comparison = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: storeData.map(s => s.name),
+                        datasets: [
+                            {
+                                label: 'Productos',
+                                data: storeData.map(s => s.products),
+                                backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                                borderColor: 'rgb(59, 130, 246)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Unidades Totales',
+                                data: storeData.map(s => s.stock),
+                                backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                                borderColor: 'rgb(34, 197, 94)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Necesitan Reposición',
+                                data: storeData.map(s => s.needed),
+                                backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                                borderColor: 'rgb(239, 68, 68)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Global functions
+        function goToStore(storeId) {
+            localStorage.setItem('selected_store', storeId);
+            window.location.href = `index.html?store=${storeId}`;
+        }
+        
+        function goToStoreSelector() {
+            window.location.href = 'tienda-selector.html';
+        }
+        
+        function logout() {
+            if (confirm('¿Está seguro de que desea cerrar sesión?')) {
+                localStorage.removeItem('inventario_session');
+                localStorage.removeItem('selected_store');
+                window.location.href = 'login.html';
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            new MultiStoreDashboard();
+        });
+    </script>
+</body>
+</html>
