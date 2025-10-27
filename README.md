@@ -78,17 +78,6 @@ Sistema completo de gestión de inventario multi-tienda con control de usuarios 
 3. Configura tiendas y usuarios (como admin)
 4. Gestiona el inventario
 
-## 🛠️ Botón Debug
-
-El botón **Debug** (naranja) en el panel de administración incluye:
-
-- **🔍 Diagnóstico**: Verificación completa del sistema
-- **🗑️ Limpiar Datos**: Reseteo seguro con confirmación
-- **📥 Exportar**: Backup completo en JSON
-- **📤 Importar**: Restauración desde backup
-- **📊 Consola**: Logs en tiempo real
-- **📈 Estadísticas**: Métricas del sistema
-
 ## 📱 Compatibilidad
 
 - **Navegadores**: Chrome, Firefox, Safari, Edge
