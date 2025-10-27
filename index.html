@@ -6,6 +6,7 @@
     <title>Sistema de Inventario</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
             font-family: 'Inter', sans-serif;
@@ -199,6 +200,9 @@
                         <button onclick="exportData()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 btn">
                             <i class="fas fa-download mr-2"></i>Exportar
                         </button>
+                        <button onclick="generateExcelReport()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 btn">
+                            <i class="fas fa-file-excel mr-2"></i>Generar reporte en Excel
+                        </button>
                     </div>
                     <div class="flex items-center gap-3">
                         <input type="text" 
@@ -221,7 +225,9 @@
                                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Código</th>
                                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Producto</th>
                                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Categoría</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-700">Precio</th>
                                 <th class="text-center py-3 px-4 font-semibold text-gray-700">Stock</th>
+                                <th class="text-center py-3 px-4 font-semibold text-gray-700">Estado</th>
                                 <th class="text-center py-3 px-4 font-semibold text-gray-700">Acciones</th>
                             </tr>
                         </thead>
@@ -283,6 +289,26 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Stock Inicial *</label>
                         <input type="number" id="productStock" required min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
                     </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Precio</label>
+                        <input type="number" id="productPrice" min="0" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                        <select id="productStatus" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                    <textarea id="productDescription" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"></textarea>
                 </div>
                 
                 <div class="flex gap-3 pt-4">
@@ -551,6 +577,7 @@
             tbody.innerHTML = products.map(product => {
                 const stockClass = parseInt(product.stock || 0) < 5 ? 'text-red-600' : 'text-green-600';
                 const stockIcon = parseInt(product.stock || 0) < 5 ? 'fa-exclamation-triangle' : 'fa-check-circle';
+                const statusClass = product.status === 'activo' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
 
                 return `
                     <tr class="border-b border-gray-100 hover:bg-gray-50">
@@ -566,6 +593,9 @@
                                 ${product.category || 'Sin categoría'}
                             </span>
                         </td>
+                        <td class="py-3 px-4">
+                            <span class="font-medium text-gray-800">$${(product.price || 0).toFixed(2)}</span>
+                        </td>
                         <td class="py-3 px-4 text-center">
                             <div class="flex items-center justify-center gap-2">
                                 <button onclick="adjustStock('${product.code}', -1)" class="w-6 h-6 bg-red-500 text-white rounded hover:bg-red-600 btn">
@@ -578,6 +608,11 @@
                                     <i class="fas fa-plus text-xs"></i>
                                 </button>
                             </div>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <span class="px-2 py-1 ${statusClass} rounded-full text-xs">
+                                ${product.status || 'activo'}
+                            </span>
                         </td>
                         <td class="py-3 px-4 text-center">
                             <div class="flex justify-center gap-2">
@@ -633,6 +668,9 @@
             const name = document.getElementById('productName').value.trim();
             const category = document.getElementById('productCategory').value;
             const stock = parseInt(document.getElementById('productStock').value) || 0;
+            const price = parseFloat(document.getElementById('productPrice').value) || 0;
+            const description = document.getElementById('productDescription').value.trim();
+            const status = document.getElementById('productStatus').value;
             const productId = document.getElementById('productId').value;
 
             // Validar que no exista un producto con el mismo código (excepto si es edición)
@@ -651,7 +689,11 @@
                         code,
                         name,
                         category,
-                        stock
+                        stock,
+                        price,
+                        description,
+                        status,
+                        lastUpdated: new Date().toISOString().split('T')[0]
                     };
                 }
                 showNotification('success', 'Producto Actualizado', 'El producto ha sido actualizado correctamente');
@@ -663,7 +705,12 @@
                     name,
                     category,
                     stock,
-                    createdAt: new Date().toISOString()
+                    price,
+                    description,
+                    status,
+                    lastUpdated: new Date().toISOString().split('T')[0],
+                    createdAt: new Date().toISOString(),
+                    storeId: selectedStore.id
                 };
                 products.push(newProduct);
                 showNotification('success', 'Producto Creado', 'El producto ha sido agregado correctamente');
@@ -685,6 +732,9 @@
             document.getElementById('productName').value = product.name;
             document.getElementById('productCategory').value = product.category || '';
             document.getElementById('productStock').value = product.stock;
+            document.getElementById('productPrice').value = product.price || 0;
+            document.getElementById('productDescription').value = product.description || '';
+            document.getElementById('productStatus').value = product.status || 'activo';
             
             document.getElementById('productModal').style.display = 'block';
         }
@@ -818,6 +868,85 @@
             window.URL.revokeObjectURL(url);
 
             showNotification('success', 'Exportación Completa', 'Los datos han sido exportados correctamente');
+        }
+
+        // Función para generar reporte en Excel
+        function generateExcelReport() {
+            if (!selectedStore) {
+                showNotification('error', 'Error', 'Por favor seleccione una tienda primero');
+                return;
+            }
+
+            // Obtener productos de la tienda seleccionada
+            const storeProducts = products.filter(product => product.storeId === selectedStore.id);
+            
+            if (storeProducts.length === 0) {
+                showNotification('error', 'Error', 'No hay productos en la tienda seleccionada');
+                return;
+            }
+
+            try {
+                // Crear libro de Excel
+                const wb = XLSX.utils.book_new();
+                
+                // Preparar datos para el Excel
+                const excelData = storeProducts.map((product, index) => ({
+                    'ID del producto': product.id || index + 1,
+                    'Nombre': product.name || '',
+                    'Descripción': product.description || '',
+                    'Cantidad disponible': product.stock || 0,
+                    'Precio': product.price || 0,
+                    'Categoría': product.category || '',
+                    'Fecha de última actualización': product.lastUpdated || new Date().toISOString().split('T')[0],
+                    'Estado': product.status || 'activo'
+                }));
+
+                // Crear worksheet
+                const ws = XLSX.utils.json_to_sheet(excelData);
+
+                // Aplicar estilos a los encabezados
+                const range = XLSX.utils.decode_range(ws['!ref']);
+                for (let col = range.s.c; col <= range.e.c; col++) {
+                    const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+                    if (!ws[cellAddress]) continue;
+                    
+                    ws[cellAddress].s = {
+                        font: { bold: true },
+                        fill: { fgColor: { rgb: "E0E0E0" } },
+                        alignment: { horizontal: "center" }
+                    };
+                }
+
+                // Ajustar ancho de columnas
+                const colWidths = [
+                    { wch: 15 }, // ID del producto
+                    { wch: 25 }, // Nombre
+                    { wch: 40 }, // Descripción
+                    { wch: 18 }, // Cantidad disponible
+                    { wch: 12 }, // Precio
+                    { wch: 20 }, // Categoría
+                    { wch: 20 }, // Fecha de última actualización
+                    { wch: 12 }  // Estado
+                ];
+                ws['!cols'] = colWidths;
+
+                // Agregar worksheet al libro
+                XLSX.utils.book_append_sheet(wb, ws, "Inventario");
+
+                // Generar nombre del archivo
+                const storeName = selectedStore.name.replace(/[^a-zA-Z0-9]/g, '_');
+                const currentDate = new Date().toISOString().split('T')[0];
+                const fileName = `Reporte_${storeName}_${currentDate}.xlsx`;
+
+                // Descargar archivo
+                XLSX.writeFile(wb, fileName);
+
+                showNotification('success', 'Reporte Generado', `El reporte "${fileName}" ha sido descargado correctamente`);
+
+            } catch (error) {
+                console.error('Error al generar reporte Excel:', error);
+                showNotification('error', 'Error', 'No se pudo generar el reporte Excel. Por favor intente nuevamente.');
+            }
         }
 
         // Notificaciones
