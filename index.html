@@ -225,9 +225,7 @@
                                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Código</th>
                                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Producto</th>
                                 <th class="text-left py-3 px-4 font-semibold text-gray-700">Categoría</th>
-                                <th class="text-left py-3 px-4 font-semibold text-gray-700">Precio</th>
                                 <th class="text-center py-3 px-4 font-semibold text-gray-700">Stock</th>
-                                <th class="text-center py-3 px-4 font-semibold text-gray-700">Estado</th>
                                 <th class="text-center py-3 px-4 font-semibold text-gray-700">Acciones</th>
                             </tr>
                         </thead>
@@ -562,7 +560,6 @@
             tbody.innerHTML = products.map(product => {
                 const stockClass = parseInt(product.stock || 0) < 5 ? 'text-red-600' : 'text-green-600';
                 const stockIcon = parseInt(product.stock || 0) < 5 ? 'fa-exclamation-triangle' : 'fa-check-circle';
-                const statusClass = product.status === 'activo' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
 
                 return `
                     <tr class="border-b border-gray-100 hover:bg-gray-50">
@@ -578,9 +575,6 @@
                                 ${product.category || 'Sin categoría'}
                             </span>
                         </td>
-                        <td class="py-3 px-4">
-                            <span class="font-medium text-gray-800">$${(product.price || 0).toFixed(2)}</span>
-                        </td>
                         <td class="py-3 px-4 text-center">
                             <div class="flex items-center justify-center gap-2">
                                 <button onclick="adjustStock('${product.code}', -1)" class="w-6 h-6 bg-red-500 text-white rounded hover:bg-red-600 btn">
@@ -593,11 +587,6 @@
                                     <i class="fas fa-plus text-xs"></i>
                                 </button>
                             </div>
-                        </td>
-                        <td class="py-3 px-4 text-center">
-                            <span class="px-2 py-1 ${statusClass} rounded-full text-xs">
-                                ${product.status || 'activo'}
-                            </span>
                         </td>
                         <td class="py-3 px-4 text-center">
                             <div class="flex justify-center gap-2">
